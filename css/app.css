@@ -152,15 +152,21 @@ img {
 }
 .fighter-name {
   padding-left: .5rem;
-  border-right: .1rem solid var(--colorPri);
+  border-right: .2rem solid var(--colorPri);
+  cursor: default;
 }
 .fighter-init {
   text-align: center;
-  border-right: .1rem solid var(--colorPri);
+  /* border-right: .2rem solid var(--colorPri); */
+  cursor: default;
 }
 .fighter-adds {
   text-align: center;
-  border-right: .1rem solid var(--colorPri);
+  font-size: 2rem;
+  padding: 0 1rem;
+  cursor: pointer;
+  background: var(--colorPri);
+  color: var(--colorSec);
 }
 /* -------------------------------------------------------- */
 /* PANEL INITIATIVE + STATS */

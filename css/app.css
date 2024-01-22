@@ -1,0 +1,278 @@
+:root {
+  /* fuentes de letra */ 
+  --fontTitulos: 'DM Serif Display', serif;
+  --fontGeneral: 'Instrument Serif', serif;
+  /* colores */
+  --colorPri: #222222;
+  --colorSec: #c7ae7a;
+  --colorTer: #8b7a56;
+  --colorLife100: #ffffff; /* 90 < X <= 100 */
+  --colorLife090: #00a724; /* 70 < X <= 90 */
+  --colorLife070: #8f8c00;
+  --colorLife045: #b37a00;
+  --colorLife025: #a73d00;
+  --colorLife005: #a70000;
+  --colorLife000: #000000;
+}
+/* Imprescindibles */
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+body {
+  font-family: var(--fontGeneral);
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Globales */
+h1, h2, h3, h4 {
+  font-weight: 900;
+  font-family: var(--fontTitulos);
+}
+h1 {
+  font-size: 3.6rem;
+}
+h2 {
+  font-size: 2.8rem;
+}
+h3 {
+  font-size: 2.2rem;
+}
+h4 {
+  font-size: 1.8rem;
+}
+a {
+  text-decoration: none;
+}
+img {
+  max-width: 100%;
+  display: block;
+  height: auto;
+}
+.contenedor {
+  max-width: 120rem;
+  width: 90%;
+  margin: 0 auto;
+}
+.btn {
+  display: block;
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  padding: .3rem 2rem;
+  max-width: 90%;
+  margin: .5rem auto; 
+}
+
+/* -------------------------------------------------------- */
+/* HEADER */
+.app-header {
+  background: url(../img/textura-papel-3.jpg);
+  background-size: cover;
+  border-bottom: .3rem solid var(--colorPri);
+}
+.app-header-in {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.app-title {
+  text-align: left;
+}
+.app-logo {
+  width: 30%;
+  height: 30%;
+}
+
+/* -------------------------------------------------------- */
+/* MARKS */
+.app-mark {
+  padding: 2rem;
+  padding-bottom: 0rem;
+  margin-top: 5rem;
+  border:.3rem solid var(--colorPri);
+  border-radius: 1rem;
+  background: url(../img/textura-papel-3.jpg);
+  background-size: cover;
+  min-height: 5rem;
+}
+.mark-header {
+  display: flex;
+  align-items: center;
+  margin-top: -5.3rem;
+  padding: 0.6rem 1.2rem;
+  border: .3rem solid var(--colorPri);
+  border-radius: 1rem;
+  background-color: var(--colorSec);
+  /* background: url(../img/textura-papel-2.jpg); */
+  background-size: cover;
+}
+.mark-title {
+  margin: 0;
+}
+.mark-icon {
+  width: 4%;
+  margin-left: 1rem;
+}
+.mark-btn {
+  font-weight: bold;
+  width: 10rem;
+  margin: 0 auto; 
+  margin-left: 1rem;
+  color: var(--colorSec);
+  background-color: var(--colorPri);
+}
+.mark-btn:hover {
+  color: var(--colorPri);
+  background-color: var(--colorTer);
+}
+
+/* -------------------------------------------------------- */
+/* PANEL FIGHTERS */
+.panel-fighters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: .5rem 1.5rem;
+}
+.fighter {
+  background-color: white;
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  display: grid;
+  grid-template-columns: 7fr 2fr 1fr;
+  align-items: center;
+  width: 15rem;
+}
+.fighter-name {
+  padding-left: .5rem;
+  border-right: .1rem solid var(--colorPri);
+}
+.fighter-init {
+  text-align: center;
+  border-right: .1rem solid var(--colorPri);
+}
+.fighter-adds {
+  text-align: center;
+  border-right: .1rem solid var(--colorPri);
+}
+/* -------------------------------------------------------- */
+/* PANEL INITIATIVE + STATS */
+.panel-initiative-stats {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  padding: .5rem 1.5rem;  
+}
+/* -------------------------------------------------------- */
+/* PANEL INITIATIVE */
+.turn-number {
+  border-left: .2rem solid var(--colorPri);
+  margin: 0 2rem 0 2rem;
+  padding-left: 2rem;
+}
+.next-turn-btn {
+  font-weight: bold;
+  width: 10rem;
+  margin-left: 1rem;
+  color: var(--colorSec);
+  background-color: var(--colorPri);
+}
+
+.panel-initiative {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  height: 20rem; /* A ajustar segons els combatients desde javascript*/
+}
+.init-fighter {
+  display: flex;
+  align-items: baseline;
+  width: 30%;
+  color: var(--colorTer);
+  font-weight: bold;
+}
+.init-active {
+  color: var(--colorPri);
+  background-color: var(--colorTer);
+  border-radius: 1rem;
+}
+.init-knocked{
+  color: var(--colorSec);
+}
+.init-value {
+  text-align: right;
+  padding-right: 1rem;
+  width: 3.3rem;
+}
+.init-name {
+ font-size: 1.8rem;
+}
+
+/* -------------------------------------------------------- */
+/* PANEL STATS */
+.panel-stats {
+  /* display: flex; */
+  /* flex-direction: column; */
+}
+.stats-title {
+  margin: 0;
+}
+.stats-info {
+  padding: 1rem;
+  height: 5rem;
+  border-top: .2rem solid var(--colorPri);
+}
+
+/* -------------------------------------------------------- */
+/* PANEL LIFE */
+.panel-life {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: .5rem 1.5rem;
+}
+
+.life-fighter {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  border: .2rem solid var(--colorPri);
+  border-radius: 1rem;
+  padding: .5rem
+}
+.life-100 { color: black; background-color: var(--colorLife100);}
+.life-90 { color: white; background-color: var(--colorLife090);}
+.life-70 { color: white; background-color: var(--colorLife070);}
+.life-45 { color: white; background-color: var(--colorLife045);}
+.life-25 { color: white; background-color: var(--colorLife025);}
+.life-5 { color: white; background-color: var(--colorLife005);}
+.life-0 { color: white; background-color: var(--colorLife000);}
+.life-name {
+width: 8rem;
+  text-align: right;
+  padding-right: .5rem;
+  border-right: .2rem solid var(--colorPri);
+}
+.life-value {
+  width: 1.2rem;
+  text-align: center;
+}
+.life-total {
+  width: 1.2rem;
+  text-align: center;
+  font-weight: bold;
+}
+.life-btn {
+  width: 3.5rem;
+  display: block;
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  font-weight: bold;
+  font-size: 1.8rem;
+  color: white;
+  background-color: var(--colorTer);
+}

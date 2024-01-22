@@ -82,6 +82,9 @@ img {
 .app-title {
   text-align: left;
 }
+.app-title-in {
+  font-size: 2rem;
+}
 .app-logo {
   width: 30%;
   height: 30%;

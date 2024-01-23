@@ -115,6 +115,11 @@ img {
 .app-title-in {
   font-size: 2rem;
 }
+@media (max-width: 750px) {
+  .app-title-in {
+    font-size: 1.3rem;
+  }
+}
 .app-logo {
   width: 30%;
   height: 30%;

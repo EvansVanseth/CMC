@@ -27,6 +27,11 @@ body {
   font-size: 1.5rem;
   line-height: 1.5;
 }
+@media (max-width: 750px) {
+  body { 
+    font-size: 1.2rem;
+  }
+}
 
 /* Globales */
 h1, h2, h3, h4 {
@@ -44,6 +49,20 @@ h3 {
 }
 h4 {
   font-size: 1.8rem;
+}
+@media (max-width: 750px) {
+  h1 {
+    font-size: 3.1rem;
+  }
+  h2 {
+    font-size: 2.3rem;
+  }
+  h3 {
+    font-size: 1.8rem;
+  }
+  h4 {
+    font-size: 1.3rem;
+  }
 }
 a {
   text-decoration: none;
@@ -90,6 +109,7 @@ img {
 @media (max-width: 750px) {
   .app-title {
     margin: 0;
+    font-size: 2.4rem;
   }
 }
 .app-title-in {
@@ -98,6 +118,12 @@ img {
 .app-logo {
   width: 30%;
   height: 30%;
+}
+@media (max-width: 750px) {
+  .app-logo {
+    width: 50%;
+    height: 50%;
+  }
 }
 
 /* -------------------------------------------------------- */
@@ -176,6 +202,16 @@ img {
   align-items: center;
   width: 15rem;
 }
+@media (max-width: 750px) {
+  .panel-fighters {
+    /* gap: .5rem; */
+    padding: .5rem 0;
+  }
+  .fighter {
+    width: 45%;
+    margin-left: .5rem;
+  }
+}
 .fighter-name {
   padding-left: .5rem;
   border-right: .2rem solid var(--colorPri);
@@ -232,7 +268,7 @@ img {
 }
 @media (max-width: 750px) {
   .init-fighter {
-    width: 50%;
+    width: 100%;
   }
 }
 .init-active {
@@ -250,6 +286,11 @@ img {
 }
 .init-name {
  font-size: 1.8rem;
+}
+@media (max-width: 750px) {
+  .init-name {
+    font-size: 1.6rem;
+   }
 }
 
 /* -------------------------------------------------------- */
@@ -284,6 +325,11 @@ img {
   border-radius: 1rem;
   padding: .5rem
 }
+@media (max-width: 750px) {
+  .life-fighter {
+    margin: 0 auto;
+  }
+}
 .life-100 { color: black; background-color: var(--colorLife100);}
 .life-90 { color: white; background-color: var(--colorLife090);}
 .life-70 { color: white; background-color: var(--colorLife070);}
@@ -291,8 +337,9 @@ img {
 .life-25 { color: white; background-color: var(--colorLife025);}
 .life-5 { color: white; background-color: var(--colorLife005);}
 .life-0 { color: white; background-color: var(--colorLife000);}
+
 .life-name {
-width: 8rem;
+  width: 8rem;
   text-align: right;
   padding-right: .5rem;
   border-right: .2rem solid var(--colorPri);

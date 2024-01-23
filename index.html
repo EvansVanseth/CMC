@@ -24,9 +24,11 @@
     <!-- Listado de combatientes -->
     <div class="app-mark contenedor">
       <div class="mark-header">
-        <h3 class="mark-title">COMBATIENTES</h3>
-        <img class="mark-icon" alt="fighters-logo" src="img/espada-flecha.png">
-        <button class="btn mark-btn" id="btn-add-fighter">NUEVO</button>
+        <div class="mark-group">
+          <h3 class="mark-title">COMBATIENTES</h3>
+          <img class="mark-icon" alt="fighters-logo" src="img/espada-flecha.png">
+          <button class="btn mark-btn" id="btn-add-fighter">NUEVO</button>
+        </div>
       </div>
       <div class="panel-fighters" id="fighters-list">
         <div class="fighter">
@@ -65,10 +67,14 @@
     <!-- Listado de iniciativa -->
     <div class="app-mark contenedor">
       <div class="mark-header">
-        <h3 class="mark-title">TURNO DE INICIATIVA...</h3>
-        <img class="mark-icon" alt="fighters-logo" src="img/dado-iniciativa.png">
-        <h4 class="turn-number">TURNO: 3</h4>
-        <button class="btn next-turn-btn" id="btn-next-turn">SIGUIENTE</button>
+        <div class="mark-group">
+          <h3 class="mark-title">TURNO DE INICIATIVA...</h3>
+          <img class="mark-icon" alt="fighters-logo" src="img/dado-iniciativa.png">  
+        </div>
+        <div class="mark-group">
+          <h4 class="turn-number">TURNO: 3</h4>
+          <button class="btn next-turn-btn" id="btn-next-turn">SIGUIENTE</button>
+        </div>
       </div>
       <div class="panel-initiative-stats">
         <div class="panel-initiative" id="initiative-list">
@@ -110,8 +116,10 @@
     <!-- Listado de vidas -->
     <div class="app-mark contenedor">
       <div class="mark-header">
-        <h3 class="mark-title">CONTROL DE DAÑOS</h3>
-        <img class="mark-icon" alt="fighters-logo" src="img/pocion-danos.png">
+        <div class="mark-group">
+          <h3 class="mark-title">CONTROL DE DAÑOS</h3>
+          <img class="mark-icon" alt="fighters-logo" src="img/pocion-danos.png">
+        </div>
       </div>
       <div class="panel-life" id="life-list">
         <div class="life-fighter life-100">

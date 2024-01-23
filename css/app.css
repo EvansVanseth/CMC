@@ -79,8 +79,18 @@ img {
   justify-content: space-between;
   align-items: center;
 }
+@media (max-width: 750px) {
+  .app-header-in {
+    flex-direction: column-reverse;
+  }
+}
 .app-title {
   text-align: left;
+}
+@media (max-width: 750px) {
+  .app-title {
+    margin: 0;
+  }
 }
 .app-title-in {
   font-size: 2rem;

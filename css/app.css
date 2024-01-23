@@ -218,7 +218,8 @@ img {
   }
 }
 .fighter-name {
-  padding-left: .5rem;
+  text-align: right;
+  padding-right: .5rem;
   border-right: .2rem solid var(--colorPri);
   cursor: default;
 }
@@ -324,6 +325,7 @@ img {
 
 .life-fighter {
   display: flex;
+  justify-content: right;
   align-items: center;
   gap: .5rem;
   border: .2rem solid var(--colorPri);
@@ -333,6 +335,7 @@ img {
 @media (max-width: 750px) {
   .life-fighter {
     margin: 0 auto;
+    width: 100%;
   }
 }
 .life-100 { color: black; background-color: var(--colorLife100);}
@@ -348,6 +351,11 @@ img {
   text-align: right;
   padding-right: .5rem;
   border-right: .2rem solid var(--colorPri);
+}
+@media (max-width: 750px) {
+  .life-name {
+    width: auto;
+  }
 }
 .life-value {
   width: 1.2rem;

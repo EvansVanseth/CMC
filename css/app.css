@@ -233,8 +233,14 @@ img {
   font-size: 2rem;
   padding: 0 1rem;
   cursor: pointer;
+  font-weight: 900;
+  border-left: .2rem solid var(--colorPri);
   background: var(--colorPri);
   color: var(--colorSec);
+}
+.fighter-adds:hover {
+  background: var(--colorTer);
+  color: var(--colorPri);
 }
 /* -------------------------------------------------------- */
 /* PANEL INITIATIVE + STATS */
@@ -258,6 +264,10 @@ img {
   color: var(--colorSec);
   background-color: var(--colorPri);
 }
+.next-turn-btn:hover{
+  color: var(--colorPri);
+  background-color: var(--colorTer);  
+}
 
 .panel-initiative {
   display: flex;
@@ -271,6 +281,7 @@ img {
   width: 30%;
   color: var(--colorTer);
   font-weight: bold;
+  cursor: default;
 }
 @media (max-width: 750px) {
   .init-fighter {
@@ -292,6 +303,7 @@ img {
 }
 .init-name {
  font-size: 1.8rem;
+ cursor: default;
 }
 @media (max-width: 750px) {
   .init-name {
@@ -371,8 +383,93 @@ img {
   display: block;
   border: .2rem solid var(--colorPri);
   border-radius: .5rem;
-  font-weight: bold;
+  font-weight: 900;
   font-size: 1.8rem;
   color: white;
   background-color: var(--colorTer);
+}
+.life-btn:hover {
+  color: var(--colorPri);
+  background-color: var(--colorSec);
+}
+/* -------------------------------------------------------- */
+/* FORM */
+.form-exterior {
+  background: rgba(20, 20, 20, .60);
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 999;
+}
+
+.form-dialogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30rem;
+  border: .3rem solid var(--colorPri);
+  border-radius: 1rem;
+  background-color: var(--colorSec);
+  padding: 1rem;
+}
+.form-titulo {
+  font-family: var(--fontTitulos);
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 0 auto;
+}
+.form-line-group {
+  width: 25rem;
+  display: flex;
+  align-items: center;
+}
+.form-textinput-text {
+  width: 10rem;
+  padding: 0 .5rem;
+  margin: .5rem;
+  text-align: right;
+  border-bottom: .2rem solid var(--colorPri); 
+}
+.form-textinput-input {
+  padding: .5rem 1rem;
+  margin: .5rem auto;
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+}
+.form-button-group {
+  width: 25rem;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+.form-button {
+  margin: 1rem 0 .5rem 1rem;
+  background-color: var(--colorPri);
+  color: var(--colorSec);
+}
+.form-button:hover {
+  background-color: var(--colorTer);
+  color: var(--colorPri)
+}
+.form-input-checkbox {
+  appearance: none;
+  cursor: pointer;
+  border: .2rem solid var(--colorPri);
+  background-color: white;
+  width: 2rem;
+  height: 2rem;
+  margin: .5rem 1rem;
+}
+.form-input-checkbox:checked{
+  background: radial-gradient(var(--colorPri) 30%, var(--colorSec) 60% ,var(--colorSec));
+}
+.form-label-checkbox {
+  cursor: pointer;
+  user-select: none;
 }

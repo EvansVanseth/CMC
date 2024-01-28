@@ -16,6 +16,7 @@ class fighter {
     this.iInit_value = iInit_value;
     this.bPje = bPje;
     this.iNumRep = iNumRep;
+    this.iDesEmpInit = Math.floor(Math.random()*20)+1;
   }
   showInFighters(parent) {
     // devuelve in elemento html que introducir en la lista de combatientes
@@ -85,20 +86,25 @@ function formTextInput(Caption, ID, bOnlyNumbers = false){
   return [div,pText,iText];
 };
 
-function changeCheckBox(checkBox, elements){
+function changeCheckBox(checkBox, checkBoxSec, elements){
   elements.forEach(element => {
     element.disabled = !checkBox.checked;
   });
+  checkBoxSec.checked = !checkBox.checked;
 };
-function addFighter(bJugador, sNombre, sBonoInic, sIniciativa){
-  console.log("Dentro");
+function changeCheckBoxTA(checkBox, elements){
+  elements.forEach(element => {
+    element.disabled = checkBox.checked;
+  });
+};
+function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto){
   if(sNombre === "") return;
-  console.log("Pasado prueba nombre");
   if (sBonoInic === "") sBonoInic = "0";
   const iBono = parseInt(sBonoInic);
   if (sIniciativa === "") sIniciativa = "0";
-  const iInit = parseInt(sIniciativa);
-  console.log(`
+  let iInit = parseInt(sIniciativa);
+  if (bTiradaAuto) iInit = Math.floor(Math.random()*20)+1+iBono;
+  console.log(`- combatiente nuevo -
     Jugador: ${bJugador},
     Nombre: ${sNombre},
     Bono: ${sBonoInic},
@@ -154,14 +160,31 @@ function formNewFighter(){
   iChbx.classList.add("form-input-checkbox");
   iChbx.setAttribute("type","checkbox");
   iChbx.setAttribute("id","chbxJugador");
-  iChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, [iInit[2]])} );
   const lbChbx = document.createElement("label");
   lbChbx.setAttribute("for","chbxJugador");
   lbChbx.classList.add("form-label-checkbox");
-  lbChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, [iInit[2]])} );
   lbChbx.innerHTML = "Jugador";
   divC.appendChild(iChbx);
   divC.appendChild(lbChbx);
+  
+  const divTA = document.createElement("div");
+  divTA.classList.add("form-button-group");
+  const iChbxTA = document.createElement("input");
+  iChbxTA.classList.add("form-input-checkbox");
+  iChbxTA.setAttribute("type","checkbox");
+  iChbxTA.setAttribute("id","chbxTiradaAuto");
+  iChbxTA.checked = true;
+  const lbChbxTA = document.createElement("label");
+  lbChbxTA.setAttribute("for","chbxTiradaAuto");
+  lbChbxTA.classList.add("form-label-checkbox");
+  lbChbxTA.innerHTML = "Tirada automática";
+  divTA.appendChild(iChbxTA);
+  divTA.appendChild(lbChbxTA);
+  
+  iChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, iChbxTA, [iInit[2]])} );
+  lbChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, iChbxTA, [iInit[2]])} );
+  iChbxTA.addEventListener("click", ()=>{ changeCheckBoxTA(iChbxTA, [iInit[2]])} );
+  lbChbxTA.addEventListener("click", ()=>{ changeCheckBoxTA(iChbxTA, [iInit[2]])} );
 
   const divB = document.createElement("div");
   divB.classList.add("form-button-group");
@@ -169,7 +192,7 @@ function formNewFighter(){
   bAdd.classList.add("btn","form-button");
   bAdd.innerHTML = "AÑADIR";
   bAdd.addEventListener("click", ()=>{
-    addFighter(iChbx.checked, iName[2].value, iBono[2].value, iInit[2].value);
+    addFighter(iChbx.checked, iName[2].value, iBono[2].value, iInit[2].value, iChbxTA.checked);
   });
   const bCls = document.createElement("button");
   bCls.classList.add("btn","form-button");
@@ -185,6 +208,7 @@ function formNewFighter(){
   divForm.appendChild(iBono[0]);
   divForm.appendChild(iInit[0]);
   divForm.appendChild(divC);
+  divForm.appendChild(divTA);
   divForm.appendChild(divB);
 
   divOpac.appendChild(divForm);

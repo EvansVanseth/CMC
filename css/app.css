@@ -189,6 +189,12 @@ img {
   color: var(--colorPri);
   background-color: var(--colorTer);
 }
+/* -------------------------------------------------------- */
+/* COMUN A PANELES */
+.panel-cerrado {
+  background: none;
+  background-color: var(--colorTer);
+}
 
 /* -------------------------------------------------------- */
 /* PANEL FIGHTERS */
@@ -197,6 +203,10 @@ img {
   flex-wrap: wrap;
   gap: 1rem;
   padding: .5rem 1.5rem;
+}
+.fighters-title {
+  cursor: pointer;
+  user-select: none;
 }
 .fighter {
   background-color: white;
@@ -272,13 +282,15 @@ img {
 .panel-initiative {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   gap: .5rem;
-  height: 20rem; /* A ajustar segons els combatients desde javascript*/
+  /* height: 20rem;  */
 }
 .init-fighter {
   display: flex;
   align-items: baseline;
   width: 30%;
+  height: 2.7rem;
   color: var(--colorTer);
   font-weight: bold;
   cursor: default;
@@ -412,7 +424,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 30rem;
+  width: 35rem;
   border: .3rem solid var(--colorPri);
   border-radius: 1rem;
   background-color: var(--colorSec);
@@ -425,12 +437,12 @@ img {
   margin: 0 auto;
 }
 .form-line-group {
-  width: 25rem;
+  width: 30rem;
   display: flex;
   align-items: center;
 }
 .form-textinput-text {
-  width: 10rem;
+  width: 15rem;
   padding: 0 .5rem;
   margin: .5rem;
   text-align: right;
@@ -443,7 +455,7 @@ img {
   border-radius: .5rem;
 }
 .form-button-group {
-  width: 25rem;
+  width: 30rem;
   display: flex;
   align-items: center;
   justify-content: right;

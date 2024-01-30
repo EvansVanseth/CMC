@@ -7,11 +7,45 @@ let LifeList = new Array();
 /** Control de turnos */
 const TurnControl = {
   turno: 0,
+  fighterPos: 99999999,
   fighterName: "",
-  mode: 0 //0:Preparando, 1:Iniciado
+  mode: 0, //0:Preparando, 1:Iniciado
+  htmlNumTurno: null,
+  htmlBtnTurno: null
 };
 function updateTurn(){
-  if(TurnControl.mode===0) TurnControl.fighterName = InitiativeList[0].sFullName();
+  if(TurnControl.mode===0) {
+    TurnControl.fighterName = "";
+    TurnControl.fighterPos = 999999999;
+    TurnControl.htmlNumTurno.innerHTML = "Prep.";
+  } else {
+    TurnControl.htmlNumTurno.innerHTML = `${TurnControl.turno}`;
+  }
+  showInitiative();
+};
+function nextFighter(){
+  let fighterFind = "";
+  if(TurnControl.mode===0 && FightersList.length>0 &&
+      confirm(`¿Todo listo? ¿Empezamos?`)) {
+    TurnControl.mode = 1;
+    TurnControl.htmlBtnTurno.innerHTML = "SIGUIENTE";
+    TurnControl.fighterPos = InitiativeList[0].iControlInit;
+    TurnControl.fighterName = InitiativeList[0].sFullName();
+  } else {
+    do {
+      if(TurnControl.fighterPos<80000000 || 
+        TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
+        TurnControl.fighterPos = InitiativeList[0].iControlInit;
+        fighterFind = InitiativeList[0].sFullName();
+        TurnControl.turno++;
+      } else {
+        TurnControl.fighterPos--;
+        fighterFind = getFighterByInit(TurnControl.fighterPos);
+      }
+    } while (fighterFind==="");
+    TurnControl.fighterName = fighterFind;
+  }
+  updateTurn();
 };
 /** Otras variables globales */
 const AppTestMode = false;
@@ -26,20 +60,26 @@ function toggleFightersPanel(){
 /******** clase FIGHTER **********/
 class fighter {
   constructor( sName, 
-               iInit_bon, 
-               iInit_value,
+               sBono, 
+               sInit,
                bPje,
                iNumRep,
                iPG
                ) {
     this.sName = sName;
-    this.iInit_bon = iInit_bon;
-    this.iInit_value = iInit_value;
+    this.iInit_bon = 0;
+    this.iInit_value = 0;
+    this.iBono_control = 0;
+    this.iInit_control = 0;
     this.bPje = bPje;
     this.iNumRep = iNumRep;
     this.iPG = iPG;
     this.iLife = iPG;
-    this.iDesEmpInit = (bPje?1000:Math.floor(Math.random()*1000));
+    this.iDesEmpInit = (bPje?999:Math.floor(Math.random()*1000));
+    this.iControlInit = 0;
+    this.setBono(sBono);
+    this.setInit(sInit);
+    this.UpdateControlInit();
   }
   // variables compuestas
   sFullName(){
@@ -50,17 +90,31 @@ class fighter {
     if (AppTestMode) return `${this.iInit_value}.${this.iInit_bon}.${this.iDesEmpInit}`;
     return `${this.iInit_value}`;
   };
+  UpdateControlInit(){
+    this.iControlInit = (this.iInit_control * 1000000) +
+                        (this.iBono_control * 1000) + 
+                        (this.iDesEmpInit);
+  };
+  //actualizaciones de iniciativa
+  setBono(sBono){
+    if(sBono==="") sBono="0";
+    this.iInit_bon = parseInt(sBono);
+    if(this.iInit_bon>899) this.iInit_bon=899;
+    this.iBono_control = parseInt(sBono) + 100;
+    if(this.iBono_control>999) this.iBono_control=999;
+    this.UpdateControlInit();
+  };
+  setInit(sInit){
+    if(sInit==="") sInit="0";
+    this.iInit_value = parseInt(sInit);
+    if(this.iInit_value>899) this.iInit_value=899;
+    this.iInit_control = parseInt(sInit) + 100;
+    if(this.iInit_control>999) this.iInit_control=999;
+    this.UpdateControlInit();
+  };
   // metodos de ordenación
   sortByInit(fA, fB) {
-    if(fA.iInit_value > fB.iInit_value) return -1;
-    if(fA.iInit_value === fB.iInit_value) {
-      if(fA.iInit_bon > fB.iInit_bon) return -1;
-      if(fA.iInit_bon === fB.iInit_bon) {
-        if(fA.iDesEmpInit > fB.iDesEmpInit) return -1;
-        return 1;
-      }
-      return 1;
-    }
+    if(fA.iControlInit > fB.iControlInit) return -1;
     return 1;
   }
   sortByName(fA, fB) {
@@ -87,6 +141,9 @@ class fighter {
     const divA = document.createElement("div");
     divA.classList.add(`fighter-adds`);
     divA.innerHTML = "+";
+    divA.addEventListener("click", ()=>{
+      formEditFighter(this);
+    })
     divF.appendChild(divN);
     divF.appendChild(divI);
     divF.appendChild(divA);
@@ -136,7 +193,7 @@ class fighter {
     if(this.bPje) return;
     const divF = document.createElement("div");
     divF.classList.add(`life-fighter`);
-    if (this.iLife === this.iPG) divF.classList.add("life-100");
+    if (this.iLife > this.iPG) divF.classList.add("life-100");
     else if (this.iLife / this.iPG > 0.85) divF.classList.add("life-90");
     else if (this.iLife / this.iPG > 0.55) divF.classList.add("life-70");
     else if (this.iLife / this.iPG > 0.35) divF.classList.add("life-45");
@@ -155,9 +212,15 @@ class fighter {
     const btUp = document.createElement("button");
     btUp.classList.add(`life-btn`);
     btUp.innerHTML = "+";
+    btUp.addEventListener("click", ()=>{
+      formHealFighter(this);
+    })
     const btDn = document.createElement("button");
     btDn.classList.add(`life-btn`);
     btDn.innerHTML = "-";
+    btDn.addEventListener("click", ()=>{
+      formDealFighter(this);
+    })
     divF.appendChild(divN);
     divF.appendChild(divL);
     divF.appendChild(divT);
@@ -168,6 +231,15 @@ class fighter {
 };
 
 /******** Gestión de combatientes ****************/
+function getFighterByInit(iInitValue) {
+  let fighterName = "";
+  FightersList.forEach(element => {
+    if(element.iControlInit === iInitValue) {
+      fighterName = element.sFullName();
+    }
+  });
+  return fighterName;
+};
 function getLastFighterByName(sTestName) {
   let fighterNum = 0;
   FightersList.forEach(element => {
@@ -187,25 +259,77 @@ function existsFighterByName(sTestName) {
   });
   return retvalue;
 };
+function posInitFighterByName(sTestName) {
+  for(let i=0; i<InitiativeList.length;i++) {
+    if (InitiativeList[i].sFullName()===sTestName) {
+      return i;
+    }
+  }
+  return -1;
+};
+function posCombFighterByName(sTestName) {
+  for(let i=0; i<FightersList.length;i++) {
+    if (FightersList[i].sFullName()===sTestName) {
+      return i;
+    }
+  }
+  return -1;
+};
+function posLifeFighterByName(sTestName) {
+  for(let i=0; i<LifeList.length;i++) {
+    if (LifeList[i].sFullName()===sTestName) {
+      return i;
+    }
+  }
+  return -1;
+};
 function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto, sPG){
   if(sNombre === "") return;
-  if (sBonoInic === "") sBonoInic = "0";
-  const iBono = parseInt(sBonoInic);
-  if (sIniciativa === "") sIniciativa = "0";
-  let iInit = parseInt(sIniciativa);
   if (sPG === "") sPG = "0";
   let iPG = parseInt(sPG);
-  if (bTiradaAuto) iInit = Math.floor(Math.random()*20)+1+iBono;
   if (existsFighterByName(sNombre)) return;
-  const newFighter = new fighter(sNombre, iBono, iInit, bJugador, getLastFighterByName(sNombre), iPG);
+  const newFighter = new fighter(sNombre, 
+                                 sBonoInic, 
+                                 sIniciativa, 
+                                 bJugador, 
+                                 getLastFighterByName(sNombre), 
+                                 iPG);
+  if (bTiradaAuto) newFighter.setInit(Math.floor(Math.random()*20)+1+newFighter.iInit_bon);
   FightersList.push(newFighter);
   InitiativeList.push(newFighter);
   InitiativeList.sort(newFighter.sortByInit);
   LifeList.push(newFighter);
   LifeList.sort(newFighter.sortByName);
-  updateTurn();
   showFighters();
-  showInitiative();
+  updateTurn();
+  showLife();
+};
+function editFighter(oFighter, sBonoInic, sIniciativa){
+  oFighter.setBono(sBonoInic);
+  oFighter.setInit(sIniciativa);
+  InitiativeList.sort(oFighter.sortByInit);
+  if(TurnControl.fighterName === oFighter.sFullName()) nextFighter();
+  else showInitiative();
+  showFighters();
+  showLife();
+};
+function deleteFighter(oFighter){
+  InitiativeList.splice(posInitFighterByName(oFighter.sFullName()),1);
+  FightersList.splice(posCombFighterByName(oFighter.sFullName()),1);
+  LifeList.splice(posLifeFighterByName(oFighter.sFullName()),1);
+  if(TurnControl.fighterName === oFighter.sFullName()) nextFighter();
+  else showInitiative();
+  showFighters();
+  showLife();
+};
+function dealFighter(oFighter, sDano){
+  if (sDano==="") sDano="0";
+  oFighter.iLife -= parseInt(sDano);
+  showLife();
+};
+function healFighter(oFighter, sDano){
+  if (sDano==="") sDano="0";
+  oFighter.iLife += parseInt(sDano);
   showLife();
 };
 
@@ -230,8 +354,8 @@ function showInitiative(){
   let heightInitPanel = 0;
   if(window.innerWidth >= WidthResponsive) {
     heightInitPanel = Math.min(InitiativeList.length * hF, 200);
-    if(InitiativeList.length > 18) {
-      heightInitPanel = Math.ceil(InitiativeList.length/3) * hF;
+    if(InitiativeList.length > 12) {
+      heightInitPanel = Math.ceil(InitiativeList.length/2) * hF;
     } 
   }
   else heightInitPanel = InitiativeList.length * hF;
@@ -355,12 +479,144 @@ function formNewFighter(){
   divOpac.appendChild(divForm);
   HTMLMain.appendChild(divOpac);
 };
+function formEditFighter(oFighter){
+  const divOpac = document.createElement("div");
+  divOpac.classList.add("form-exterior");
+  const divForm = document.createElement("div");
+  divForm.classList.add("form-dialogo");
+
+  const pTit = document.createElement("p");
+  pTit.classList.add("form-titulo");
+  pTit.innerHTML = oFighter.sFullName();
+
+  const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
+  const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
+  iBono[2].value = `${oFighter.iInit_bon}`;
+  iInit[2].value = `${oFighter.iInit_value}`;
+
+
+  const divB = document.createElement("div");
+  divB.classList.add("form-button-group");
+  const bAdd = document.createElement("button");
+  bAdd.classList.add("btn","form-button");
+  bAdd.innerHTML = "ACEPTAR";
+  bAdd.addEventListener("click", ()=>{
+    divOpac.remove();
+    editFighter(oFighter, iBono[2].value, iInit[2].value);
+  });
+  const bCls = document.createElement("button");
+  bCls.classList.add("btn","form-button");
+  bCls.innerHTML = "CANCELAR";
+  bCls.addEventListener("click", ()=>{
+    divOpac.remove();
+  });
+  divB.appendChild(bAdd);
+  divB.appendChild(bCls);
+  
+  const divD = document.createElement("div");
+  divD.classList.add("form-button-group");
+  const bDel = document.createElement("button");
+  bDel.classList.add("btn","form-button");
+  bDel.innerHTML = "ELIMINAR COMBATIENTE";
+  bDel.addEventListener("click", ()=>{
+    divOpac.remove();
+    deleteFighter(oFighter, iBono[2].value, iInit[2].value);
+  });
+  divD.appendChild(bDel);
+
+  divForm.appendChild(pTit);
+  divForm.appendChild(iBono[0]);
+  divForm.appendChild(iInit[0]);
+  divForm.appendChild(divB);
+  divForm.appendChild(divD);
+
+  divOpac.appendChild(divForm);
+  HTMLMain.appendChild(divOpac);
+};
+function formDealFighter(oFighter){
+  const divOpac = document.createElement("div");
+  divOpac.classList.add("form-exterior");
+  const divForm = document.createElement("div");
+  divForm.classList.add("form-dialogo");
+
+  const pTit = document.createElement("p");
+  pTit.classList.add("form-titulo");
+  pTit.innerHTML = `Dañar a ${oFighter.sFullName()}`;
+
+  const iDano = formTextInput("Daño causado","id-dano",true);
+
+  const divB = document.createElement("div");
+  divB.classList.add("form-button-group");
+  const bAdd = document.createElement("button");
+  bAdd.classList.add("btn","form-button");
+  bAdd.innerHTML = "ACEPTAR";
+  bAdd.addEventListener("click", ()=>{
+    divOpac.remove();
+    dealFighter(oFighter, iDano[2].value);
+  });
+  const bCls = document.createElement("button");
+  bCls.classList.add("btn","form-button");
+  bCls.innerHTML = "CANCELAR";
+  bCls.addEventListener("click", ()=>{
+    divOpac.remove();
+  });
+  divB.appendChild(bAdd);
+  divB.appendChild(bCls);
+  
+  divForm.appendChild(pTit);
+  divForm.appendChild(iDano[0]);
+  divForm.appendChild(divB);
+
+  divOpac.appendChild(divForm);
+  HTMLMain.appendChild(divOpac);
+};
+function formHealFighter(oFighter){
+  const divOpac = document.createElement("div");
+  divOpac.classList.add("form-exterior");
+  const divForm = document.createElement("div");
+  divForm.classList.add("form-dialogo");
+
+  const pTit = document.createElement("p");
+  pTit.classList.add("form-titulo");
+  pTit.innerHTML = `Sanar a ${oFighter.sFullName()}`;
+
+  const iDano = formTextInput("Daño sanado","id-sano",true);
+
+  const divB = document.createElement("div");
+  divB.classList.add("form-button-group");
+  const bAdd = document.createElement("button");
+  bAdd.classList.add("btn","form-button");
+  bAdd.innerHTML = "ACEPTAR";
+  bAdd.addEventListener("click", ()=>{
+    divOpac.remove();
+    healFighter(oFighter, iDano[2].value);
+  });
+  const bCls = document.createElement("button");
+  bCls.classList.add("btn","form-button");
+  bCls.innerHTML = "CANCELAR";
+  bCls.addEventListener("click", ()=>{
+    divOpac.remove();
+  });
+  divB.appendChild(bAdd);
+  divB.appendChild(bCls);
+  
+  divForm.appendChild(pTit);
+  divForm.appendChild(iDano[0]);
+  divForm.appendChild(divB);
+
+  divOpac.appendChild(divForm);
+  HTMLMain.appendChild(divOpac);
+};
 
 // --- MAIN ENTRY ---------------------------------------------------
 
 window.addEventListener("load", ()=>{
   HTMLMain = document.querySelector("main");
+  TurnControl.htmlNumTurno = document.querySelector("#num-turno");
   window.addEventListener("resize", checkwindowWidthChange);
   const btnAddFighter = document.getElementById("btn-add-fighter");
   btnAddFighter.addEventListener("click", formNewFighter);
+  TurnControl.htmlBtnTurno = document.getElementById("btn-next-turn");
+  TurnControl.htmlBtnTurno.addEventListener("click", nextFighter);
+  updateTurn();
 })

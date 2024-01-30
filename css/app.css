@@ -284,12 +284,11 @@ img {
   flex-direction: column;
   flex-wrap: wrap;
   gap: .5rem;
-  /* height: 20rem;  */
 }
 .init-fighter {
   display: flex;
   align-items: baseline;
-  width: 30%;
+  width: 50%;
   height: 2.7rem;
   color: var(--colorTer);
   font-weight: bold;
@@ -382,11 +381,11 @@ img {
   }
 }
 .life-value {
-  width: 1.2rem;
+  width: 1.6rem;
   text-align: center;
 }
 .life-total {
-  width: 1.2rem;
+  width: 1.6rem;
   text-align: center;
   font-weight: bold;
 }

@@ -624,8 +624,6 @@ function formNewFighter(){
   HTMLMain.appendChild(divOpac);
 };
 function formEditFighter(oFighter){
-  console.log(oFighter);
-
   const divOpac = document.createElement("div");
   divOpac.classList.add("form-exterior");
   const divForm = document.createElement("div");

@@ -391,16 +391,16 @@ img {
   }
 }
 .life-value {
-  width: 1.6rem;
+  width: 2rem;
   text-align: center;
 }
 .life-total {
-  width: 1.6rem;
+  width: 2rem;
   text-align: center;
   font-weight: bold;
 }
 .life-btn {
-  width: 3.5rem;
+  width: 3rem;
   display: block;
   border: .2rem solid var(--colorPri);
   border-radius: .5rem;

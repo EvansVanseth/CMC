@@ -124,13 +124,13 @@ class state {
                sDesc,
                bInca,
                iTurnos,
-               oFighter) {
+               fighterName) {
     this.iIcon = iIcon;
     this.sName = sName;
     this.sDesc = sDesc;
     this.bInca = bInca;
     this.iTurnos = iTurnos;
-    this.oFighter = oFighter;
+    this.fighterName = fighterName;
   }
   showStateInEdit(divOpac){
     const divS = document.createElement("div");
@@ -146,13 +146,15 @@ class state {
     divE.classList.add("state-edit");
     divE.addEventListener("click", ()=>{
       divOpac.remove();
-      formEditState(this.oFighter, this);
+      const oFighter = getFighterByName(this.fighterName);
+      formEditState(oFighter, this);
     })
     const divD = document.createElement("div");
     divD.classList.add("state-delete");
     divD.addEventListener("click", ()=>{
       divOpac.remove();
       // eliminar estado del combatiente
+      const oFighter = getFighterByName(this.fighterName);
       formEditFighter(oFighter);
     })
     const pDesc = document.createElement("p");
@@ -368,7 +370,7 @@ function getFighterByInit(iInitValue) {
   return fighterName;
 };
 function getFighterByName(sTestName) {
-  const oFighter = null;
+  let oFighter;
   FightersList.forEach(element => {
     if(element.sFullName() === sTestName) {
       oFighter = element;
@@ -431,7 +433,8 @@ function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto, sPG)
                                  getLastFighterByName(sNombre), 
                                  iPG);
   if (bTiradaAuto) newFighter.setInit(Math.floor(Math.random()*20)+1+newFighter.iInit_bon);
-  const newState = new state(-1, "Muerto", "Esto es una prueba", true, 99);
+  const newState = new state(-1, "Muerto", "Esto es una prueba", 
+                             true, 99, newFighter.sFullName());
   newFighter.states.push(newState);
   FightersList.push(newFighter);
   InitiativeList.push(newFighter);
@@ -827,7 +830,7 @@ function formEditState(oFighter, oState){
 
   const pTit = document.createElement("p");
   pTit.classList.add("form-seccion");
-  pTit.innerHTML = `Editar estado alterado`;
+  pTit.innerHTML = `Editar estado alterado a ${oFighter.sFullName()}`;
 
   const divB = document.createElement("div");
   divB.classList.add("form-button-group");

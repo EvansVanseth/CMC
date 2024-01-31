@@ -6,8 +6,9 @@
   --colorPri: #222222;
   --colorSec: #c7ae7a;
   --colorTer: #8b7a56;
-  --colorLife100: #ffffff; /* 90 < X <= 100 */
-  --colorLife090: #00a724; /* 70 < X <= 90 */
+  --colorHgl: #0026ff;
+  --colorLife100: #ffffff; 
+  --colorLife090: #00a724; 
   --colorLife070: #8f8c00;
   --colorLife045: #b37a00;
   --colorLife025: #a73d00;
@@ -242,7 +243,7 @@ img {
   text-align: center;
   font-size: 2rem;
   padding: 0 1rem;
-  cursor: pointer;
+  cursor: default;
   font-weight: 900;
   border-left: .2rem solid var(--colorPri);
   background: var(--colorPri);
@@ -299,10 +300,17 @@ img {
     width: 100%;
   }
 }
+.init-fighter:hover {
+  color: var(--colorHgl);
+}
 .init-active {
   color: var(--colorPri);
   background-color: var(--colorTer);
   border-radius: 1rem;
+}
+.init-dead {
+  text-decoration: line-through;
+  color: var(--colorTer);
 }
 .init-knocked{
   color: var(--colorSec);
@@ -314,8 +322,10 @@ img {
 }
 .init-name {
  font-size: 1.8rem;
- cursor: default;
+ cursor: pointer;
 }
+
+
 @media (max-width: 750px) {
   .init-name {
     font-size: 1.6rem;
@@ -435,6 +445,12 @@ img {
   font-weight: 900;
   margin: 0 auto;
 }
+.form-seccion {
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 0 0 0 3rem;
+  width: 100%;
+}
 .form-line-group {
   width: 30rem;
   display: flex;
@@ -483,4 +499,46 @@ img {
 .form-label-checkbox {
   cursor: pointer;
   user-select: none;
+}
+/* -------------------------------------------------------- */
+/* STATE IN FORM */
+.state-frame {
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  display: grid;
+  grid-template-columns: 6fr 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 90%;
+  margin-bottom: .5rem;
+}
+.state-name {
+  padding: .2rem .5rem;
+  margin: 0;
+  font-weight: 900;
+}
+.state-turn {
+  padding: .2rem .5rem;
+  font-weight: 900;
+  margin: 0;
+  text-align: center;
+}
+.state-edit {
+  margin: .5rem;
+  background-image: url(../img/icons/edit.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.state-delete {
+  margin: .5rem;
+  background-image: url(../img/icons/delete.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.state-desc {
+  background-color: var(--colorTer);
+  border-top: .1rem solid var(--colorPri);
+  padding: .2rem .7rem;
+  grid-row: 2 / 3;
+  grid-column: 1 / 5;
+  margin: 0;
 }

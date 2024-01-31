@@ -527,12 +527,14 @@ img {
   background-image: url(../img/icons/edit.svg);
   background-size: contain;
   background-repeat: no-repeat;
+  cursor: pointer;
 }
 .state-delete {
   margin: .5rem;
   background-image: url(../img/icons/delete.svg);
   background-size: contain;
   background-repeat: no-repeat;
+  cursor: pointer;
 }
 .state-desc {
   background-color: var(--colorTer);

@@ -335,13 +335,15 @@ img {
 /* -------------------------------------------------------- */
 /* PANEL STATS */
 .panel-stats {
-  /* display: flex; */
-  /* flex-direction: column; */
+  display: flex;
+  flex-direction: column;
 }
 .stats-title {
   margin: 0;
 }
 .stats-info {
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
   height: 5rem;
   border-top: .2rem solid var(--colorPri);

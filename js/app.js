@@ -91,14 +91,17 @@ function updateTurn(){
 };
 function nextFighter(){
   let fighterFind = "";
-  console.log(FightersList.length);
   if(FightersList.length<1) return;
+  if(TurnControl.fighterName !== "") {
+    getFighterByName(TurnControl.fighterName).statesPassTurn();
+  }
   if(TurnControl.mode===0) {
     if(!confirm(`¿Todo listo? ¿Empezamos?`)) return;
     TurnControl.mode = 1;
     htmlBtnTurno.innerHTML = "SIGUIENTE";
     TurnControl.fighterPos = InitiativeList[0].iControlInit;
     TurnControl.fighterName = InitiativeList[0].sFullName();
+    if (InitiativeList[0].checkStates()) nextFighter();
   } else {
     htmlBtnTurno.innerHTML = "SIGUIENTE";
     do {
@@ -113,6 +116,7 @@ function nextFighter(){
       }
     } while (fighterFind==="");
     TurnControl.fighterName = fighterFind;
+    if (getFighterByName(fighterFind).checkStates()) nextFighter();
   }
   updateTurn();
   saveLocal();
@@ -326,8 +330,15 @@ class fighter {
     const divN = document.createElement("div");
     divN.classList.add(`init-name`);
     divN.innerHTML = this.sFullName();
+
     divF.appendChild(divI);
     divF.appendChild(divN);
+    this.states.forEach(s => {
+      let divS = document.createElement("div");
+      divS.classList.add(`init-state`);
+      divS.innerHTML = s.sName;
+      divF.appendChild(divS);
+    })
     parent.appendChild(divF);
   }
   // elemento HTML para CONTROL DE DAÑOS
@@ -386,6 +397,20 @@ class fighter {
     divF.appendChild(btDn);
     parent.appendChild(divF);   
   }
+  checkStates(){
+    let bInc = false;
+    this.states.forEach((s) => {
+      bInc = s.bInca || bInc;
+    })
+    return bInc;
+  }
+  statesPassTurn(){
+    this.states.forEach((s) => {
+      s.iTurnos--;
+    })
+    this.states = this.states.filter(s => s.iTurnos>0);
+  }
+
 };
 
 /******** Gestión de combatientes ****************/
@@ -537,6 +562,8 @@ function showInitiative(){
     } 
   }
   else heightInitPanel = InitiativeList.length * hF;
+  heightInitPanel = Math.max(heightInitPanel,
+                             )
   HTMLInitiativeList.style.height = `${heightInitPanel}px`;
   
   InitiativeList.forEach(oFighter => { oFighter.showInInitiative(HTMLInitiativeList) });
@@ -693,12 +720,12 @@ function formEditFighter(oFighter){
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
   const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
-    ()=>{ editFighter(oFighter, iBono[2].value, iInit[2].value); },
-    ()=>{ divOpac[0].remove(); }
+    ()=>{ divOpac[0].remove(); editFighter(oFighter, iBono[2].value, iInit[2].value); },
+    ()=>{ divOpac[0].remove(); showInitiative(); }
   ]);
   const pTEt = formSeccion(`Estados alterados`);
   const divE = formButtons(1, ["AÑADIR"], [
-    ()=>{ divOpac[0].remove(); formAddState(oFighter); }
+    ()=>{ divOpac[0].remove(); formAddState(oFighter); showInitiative(); }
   ]);
   const pTEc = formSeccion(`Borrado`);
   const divD = formButtons(1, ["ELIMINAR COMBATIENTE"], [

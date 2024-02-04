@@ -181,7 +181,7 @@ class state {
   };
   showStateInInit(){
     const divS = document.createElement("div");
-    divS.classList.add("state-frame");
+    divS.classList.add("state-init-frame");
 
     const pName = document.createElement("p");
     pName.classList.add("state-name");

@@ -346,6 +346,15 @@ img {
   height: 5rem;
   border-top: .2rem solid var(--colorPri);
 }
+.state-init-frame {
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  display: grid;
+  grid-template-columns: 6fr 2fr;
+  grid-template-rows: 1fr auto;
+  width: 90%;
+  margin-bottom: .5rem;
+}
 
 /* -------------------------------------------------------- */
 /* PANEL LIFE */

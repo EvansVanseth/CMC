@@ -82,8 +82,8 @@ img {
   display: block;
   border: .2rem solid var(--colorPri);
   border-radius: .5rem;
-  padding: .3rem 2rem;
-  max-width: 90%;
+  padding: .3rem 1rem;
+  /* max-width: 90%; */
   margin: .5rem auto; 
 }
 
@@ -180,7 +180,7 @@ img {
 }
 .mark-btn {
   font-weight: bold;
-  width: 10rem;
+  /* min-width: 4rem; */
   margin: 0 auto; 
   margin-left: 1rem;
   color: var(--colorSec);
@@ -291,7 +291,7 @@ img {
   align-items: baseline;
   width: 50%;
   height: 2.7rem;
-  color: var(--colorTer);
+  color: var(--colorPri);
   font-weight: bold;
   cursor: default;
 }
@@ -310,11 +310,11 @@ img {
 }
 .init-dead {
   text-decoration: line-through;
-  color: var(--colorTer);
-}
-.init-knocked{
   color: var(--colorSec);
 }
+/* .init-knocked{
+  color: var(--colorSec);
+} */
 .init-value {
   text-align: right;
   padding-right: 1rem;
@@ -456,6 +456,11 @@ img {
   display: flex;
   align-items: center;
 }
+.form-memo-group {
+  width: 30rem;
+  display: flex;
+  align-items: first baseline;
+}
 .form-textinput-text {
   width: 15rem;
   padding: 0 .5rem;
@@ -468,6 +473,16 @@ img {
   margin: .5rem auto;
   border: .2rem solid var(--colorPri);
   border-radius: .5rem;
+}
+.form-textinput-memo {
+  padding: .5rem 1rem;
+  margin: .5rem auto;
+  border: .2rem solid var(--colorPri);
+  border-radius: .5rem;
+  resize: none;
+  min-height: 6rem;
+  overflow: hidden;
+  width: 16rem;
 }
 .form-button-group {
   width: 30rem;
@@ -497,6 +512,11 @@ img {
   background: radial-gradient(var(--colorPri) 30%, var(--colorSec) 60% ,var(--colorSec));
 }
 .form-label-checkbox {
+  width: 13rem;
+  padding: 0;
+  margin: .5rem;
+  text-align: right;
+  /* border-bottom: .2rem solid var(--colorPri);  */
   cursor: pointer;
   user-select: none;
 }
@@ -507,7 +527,7 @@ img {
   border-radius: .5rem;
   display: grid;
   grid-template-columns: 6fr 2fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr auto;
   width: 90%;
   margin-bottom: .5rem;
 }
@@ -540,7 +560,7 @@ img {
   background-color: var(--colorTer);
   border-top: .1rem solid var(--colorPri);
   padding: .2rem .7rem;
-  grid-row: 2 / 3;
+  grid-row: 2;
   grid-column: 1 / 5;
   margin: 0;
 }

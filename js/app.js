@@ -10,10 +10,11 @@ let TurnControl = {
   turno: 0,
   fighterPos: 99999999,
   fighterName: "",
-  mode: 0, //0:Preparando, 1:Iniciado
-  htmlNumTurno: null,
-  htmlBtnTurno: null
+  mode: 0 //0:Preparando, 1:Iniciado
 };
+let htmlNumTurno = null;
+let htmlBtnTurno = null;
+let htmlStatsData = null;
 function clearCombat(){
   if (!confirm(`Esta acción vaciará el combate entero y se reiniciará todo.
   
@@ -21,10 +22,14 @@ function clearCombat(){
   FightersList.splice(0, FightersList.length);
   InitiativeList.splice(0, InitiativeList.length);
   LifeList.splice(0, LifeList.length);
+  FightersList.length = 0;
+  InitiativeList.length = 0;
+  LifeList.length = 0;
   TurnControl.turno = 0;
   TurnControl.fighterPos = 999999999;
   TurnControl.fighterName = "";
   TurnControl.mode = 0;
+  htmlBtnTurno.innerHTML = "INICIAR";
   showFighters();
   showLife();
   updateTurn();
@@ -59,9 +64,11 @@ function loadLocal(){
                                eleState.sName,
                                eleState.sDesc,
                                eleState.bInca,
-                               eleState.iTurnos);
+                               eleState.iTurnos,
+                               newFighter.sFullName());
       newFighter.states.push(newState);
     });
+    
     FightersList.push(newFighter);
     InitiativeList.push(newFighter);
     LifeList.push(newFighter);
@@ -76,21 +83,24 @@ function updateTurn(){
   if(TurnControl.mode===0) {
     TurnControl.fighterName = "";
     TurnControl.fighterPos = 999999999;
-    TurnControl.htmlNumTurno.innerHTML = "Prep.";
+    htmlNumTurno.innerHTML = "Prep.";
   } else {
-    TurnControl.htmlNumTurno.innerHTML = `${TurnControl.turno}`;
+    htmlNumTurno.innerHTML = `${TurnControl.turno}`;
   }
   showInitiative();
 };
 function nextFighter(){
   let fighterFind = "";
-  if(TurnControl.mode===0 && FightersList.length>0 &&
-      confirm(`¿Todo listo? ¿Empezamos?`)) {
+  console.log(FightersList.length);
+  if(FightersList.length<1) return;
+  if(TurnControl.mode===0) {
+    if(!confirm(`¿Todo listo? ¿Empezamos?`)) return;
     TurnControl.mode = 1;
-    TurnControl.htmlBtnTurno.innerHTML = "SIGUIENTE";
+    htmlBtnTurno.innerHTML = "SIGUIENTE";
     TurnControl.fighterPos = InitiativeList[0].iControlInit;
     TurnControl.fighterName = InitiativeList[0].sFullName();
   } else {
+    htmlBtnTurno.innerHTML = "SIGUIENTE";
     do {
       if(TurnControl.fighterPos<80000000 || 
         TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
@@ -153,8 +163,8 @@ class state {
     divD.classList.add("state-delete");
     divD.addEventListener("click", ()=>{
       divOpac.remove();
-      // eliminar estado del combatiente
       const oFighter = getFighterByName(this.fighterName);
+      oFighter.states = oFighter.states.filter(e => e!==this);
       formEditFighter(oFighter);
     })
     const pDesc = document.createElement("p");
@@ -171,8 +181,24 @@ class state {
   };
   showStateInInit(){
     const divS = document.createElement("div");
-    divS.innerHTML = 
-    `${this.sName} (${this.sDesc}) : ${this.bInca} (${this.iTurnos})`;
+    divS.classList.add("state-frame");
+
+    const pName = document.createElement("p");
+    pName.classList.add("state-name");
+    pName.innerHTML = `${this.sName} ${(this.bInca?'[X] ':' ')}`;
+    
+    const pTurn = document.createElement("p");
+    pTurn.classList.add("state-turn");
+    pTurn.innerHTML = `${this.iTurnos}`;
+    
+    const pDesc = document.createElement("p");
+    pDesc.classList.add("state-desc");
+    pDesc.innerHTML = `${this.sDesc}`;    
+    
+    divS.appendChild(pName);
+    divS.appendChild(pTurn);
+    divS.appendChild(pDesc);
+
     return divS;
   };
 };
@@ -281,6 +307,12 @@ class fighter {
     divF.classList.add(`init-fighter`);
     if (TurnControl.fighterName === this.sFullName()) {
       divF.classList.add("init-active");
+      console.log(htmlStatsData);
+      if(htmlStatsData!==null) {
+        this.states.forEach(stateIn => {
+          htmlStatsData.appendChild(stateIn.showStateInInit());
+        })
+      }
     }
     if (this.iLife <= 0) {
       divF.classList.add("init-dead");
@@ -433,9 +465,6 @@ function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto, sPG)
                                  getLastFighterByName(sNombre), 
                                  iPG);
   if (bTiradaAuto) newFighter.setInit(Math.floor(Math.random()*20)+1+newFighter.iInit_bon);
-  const newState = new state(-1, "Muerto", "Esto es una prueba", 
-                             true, 99, newFighter.sFullName());
-  newFighter.states.push(newState);
   FightersList.push(newFighter);
   InitiativeList.push(newFighter);
   InitiativeList.sort(fighter.sortByInit);
@@ -498,6 +527,7 @@ function showFighters(){
 function showInitiative(){
   const HTMLInitiativeList = document.getElementById("initiative-list");
   HTMLInitiativeList.innerHTML = "";
+  if(htmlStatsData!==null) htmlStatsData.innerHTML = "";
   const hF = 32;
   let heightInitPanel = 0;
   if(window.innerWidth >= WidthResponsive) {
@@ -525,6 +555,26 @@ function checkwindowWidthChange(){
 }
 
 /******* Elementos de ayuda para FORMULARIOS **********/
+function formPrep(){
+  const divOpac = document.createElement("div");
+  divOpac.classList.add("form-exterior");
+  const divForm = document.createElement("div");
+  divForm.classList.add("form-dialogo");
+  divOpac.appendChild(divForm);
+  return [divOpac, divForm];
+};
+function formTitle(Caption){
+  const pTit = document.createElement("p");
+  pTit.classList.add("form-titulo");
+  pTit.innerHTML = Caption;  
+  return pTit;
+}
+function formSeccion(Caption){
+  const pTit = document.createElement("p");
+  pTit.classList.add("form-seccion");
+  pTit.innerHTML = Caption;  
+  return pTit;
+}
 function formTextInput(Caption, ID, bOnlyNumbers = false){
   const div = document.createElement("div");
   div.classList.add("form-line-group");
@@ -539,6 +589,35 @@ function formTextInput(Caption, ID, bOnlyNumbers = false){
   div.appendChild(iText);
   return [div,pText,iText];
 };
+function formMemoInput(Caption, ID){
+  const div = document.createElement("div");
+  div.classList.add("form-memo-group");
+  const pText = document.createElement("p");
+  pText.classList.add("form-textinput-text");
+  pText.innerHTML = Caption;
+  const iText = document.createElement("textarea");
+  iText.classList.add("form-textinput-memo");
+  iText.setAttribute("id",ID);
+  iText.setAttribute("oninput","autogrow(this)");
+  div.appendChild(pText);
+  div.appendChild(iText);
+  return [div,pText,iText];
+};
+function formCheckBox(Caption, ID) {
+  const divC = document.createElement("div");
+  divC.classList.add("form-line-group");
+  const iChbx = document.createElement("input");
+  iChbx.classList.add("form-input-checkbox");
+  iChbx.setAttribute("type","checkbox");
+  iChbx.setAttribute("id",ID);
+  const lbChbx = document.createElement("label");
+  lbChbx.setAttribute("for",ID);
+  lbChbx.classList.add("form-label-checkbox");
+  lbChbx.innerHTML = Caption;
+  divC.appendChild(lbChbx);  
+  divC.appendChild(iChbx);
+  return [divC, iChbx, lbChbx];
+}
 function changeCheckBox(checkBox, checkBoxSec, valideElements, invalideElements){
   valideElements.forEach(element => {
     element.disabled = !checkBox.checked;
@@ -548,337 +627,221 @@ function changeCheckBox(checkBox, checkBoxSec, valideElements, invalideElements)
   });
   if (checkBoxSec!=undefined) checkBoxSec.checked = !checkBox.checked;
 };
+function formButtons(numButtons, Captions, OnCliks){
+  const buttons = new Array();
+  const divB = document.createElement("div");
+  divB.classList.add("form-button-group");
+  for(let i=0; i<numButtons;i++){
+    const bAdd = document.createElement("button");
+    bAdd.classList.add("btn","form-button");
+    bAdd.innerHTML = Captions[i];
+    bAdd.addEventListener("click", OnCliks[i]);
+    divB.appendChild(bAdd);
+    buttons.push(bAdd);
+  }
+  return [divB, buttons];
+}
+function autogrow(element) {
+  element.style.height = "5px";
+  element.style.height = (element.scrollHeight) + "px";
+}
 /******* FORMULARIOS ******************/
 function formNewFighter(){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
+  const divOpac = formPrep();
 
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-titulo");
-  pTit.innerHTML = "Nuevo combatiente";
-
+  // VISUAL
+  const pTit = formTitle("Nuevo combatiente");
   const iName = formTextInput("Nombre","id-nombre-combatiente");
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
   const iPtGP = formTextInput("Puntos de golpe (PG)","id-puntos-golpe",true);
+  const iChbxJ = formCheckBox("Jugador", "chbxJugador");
+  const iChbxT = formCheckBox("Tirada automatica", "chbxTiradaAuto");
+  const divB = formButtons(2, ["AÑADIR", "CERRAR"], [
+    () => { addFighter(iChbxJ[1].checked, 
+                       iName[2].value, 
+                       iBono[2].value, 
+                       iInit[2].value, 
+                       iChbxT[1].checked, 
+                       iPtGP[2].value); },
+    () => { divOpac[0].remove(); }
+  ]);
+  // LOGICA
   iInit[2].disabled = true;
-
-  const divC = document.createElement("div");
-  divC.classList.add("form-button-group");
-  const iChbx = document.createElement("input");
-  iChbx.classList.add("form-input-checkbox");
-  iChbx.setAttribute("type","checkbox");
-  iChbx.setAttribute("id","chbxJugador");
-  const lbChbx = document.createElement("label");
-  lbChbx.setAttribute("for","chbxJugador");
-  lbChbx.classList.add("form-label-checkbox");
-  lbChbx.innerHTML = "Jugador";
-  divC.appendChild(iChbx);
-  divC.appendChild(lbChbx);
+  iChbxT[1].checked = true;
+  iChbxJ[1].addEventListener("click", ()=>{ changeCheckBox(iChbxJ[1], iChbxT[1], [iInit[2]], [iPtGP[2]])} );
+  iChbxJ[2].addEventListener("click", ()=>{ changeCheckBox(iChbxJ[1], iChbxT[1], [iInit[2]], [iPtGP[2]])} );
+  iChbxT[1].addEventListener("click", ()=>{ changeCheckBox(iChbxT[1], undefined, [], [iInit[2]])} );
+  iChbxT[2].addEventListener("click", ()=>{ changeCheckBox(iChbxT[1], undefined, [], [iInit[2]])} );
   
-  const divTA = document.createElement("div");
-  divTA.classList.add("form-button-group");
-  const iChbxTA = document.createElement("input");
-  iChbxTA.classList.add("form-input-checkbox");
-  iChbxTA.setAttribute("type","checkbox");
-  iChbxTA.setAttribute("id","chbxTiradaAuto");
-  iChbxTA.checked = true;
-  const lbChbxTA = document.createElement("label");
-  lbChbxTA.setAttribute("for","chbxTiradaAuto");
-  lbChbxTA.classList.add("form-label-checkbox");
-  lbChbxTA.innerHTML = "Tirada automática";
-  divTA.appendChild(iChbxTA);
-  divTA.appendChild(lbChbxTA);
-  
-  iChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, iChbxTA, [iInit[2]], [iPtGP[2]])} );
-  lbChbx.addEventListener("click", ()=>{ changeCheckBox(iChbx, iChbxTA, [iInit[2]], [iPtGP[2]])} );
-  iChbxTA.addEventListener("click", ()=>{ changeCheckBox(iChbxTA, undefined, [], [iInit[2]])} );
-  lbChbxTA.addEventListener("click", ()=>{ changeCheckBox(iChbxTA, undefined, [], [iInit[2]])} );
-
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "AÑADIR";
-  bAdd.addEventListener("click", ()=>{
-    addFighter(iChbx.checked, iName[2].value, iBono[2].value, iInit[2].value, iChbxTA.checked, iPtGP[2].value);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CERRAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);
-
-  divForm.appendChild(pTit);
-  divForm.appendChild(iName[0]);
-  divForm.appendChild(iBono[0]);
-  divForm.appendChild(iInit[0]);
-  divForm.appendChild(iPtGP[0]);
-  divForm.appendChild(divC);
-  divForm.appendChild(divTA);
-  divForm.appendChild(divB);
-
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  // MONTAJE
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(iChbxJ[0]);
+  divOpac[1].appendChild(iName[0]);
+  divOpac[1].appendChild(iBono[0]);
+  divOpac[1].appendChild(iInit[0]);
+  divOpac[1].appendChild(iPtGP[0]);
+  divOpac[1].appendChild(iChbxT[0]);
+  divOpac[1].appendChild(divB[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 function formEditFighter(oFighter){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
-
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-titulo");
-  pTit.innerHTML = oFighter.sFullName();
-
-  const pTIt = document.createElement("p");
-  pTIt.classList.add("form-seccion");
-  pTIt.innerHTML = `Iniciativa`; 
-
+  const divOpac = formPrep();
+  // VISUAL
+  const pTit = formTitle(oFighter.sFullName());
+  const pTIt = formSeccion(`Iniciativa`);
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
+  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
+    ()=>{ editFighter(oFighter, iBono[2].value, iInit[2].value); },
+    ()=>{ divOpac[0].remove(); }
+  ]);
+  const pTEt = formSeccion(`Estados alterados`);
+  const divE = formButtons(1, ["AÑADIR"], [
+    ()=>{ divOpac[0].remove(); formAddState(oFighter); }
+  ]);
+  const pTEc = formSeccion(`Borrado`);
+  const divD = formButtons(1, ["ELIMINAR COMBATIENTE"], [
+    ()=>{ divOpac[0].remove(); deleteFighter(oFighter, iBono[2].value, iInit[2].value); }
+  ]);
+
+  // LOGICA
   iBono[2].value = `${oFighter.iInit_bon}`;
   iInit[2].value = `${oFighter.iInit_value}`;
 
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "ACEPTAR";
-  bAdd.addEventListener("click", ()=>{
-    divOpac.remove();
-    editFighter(oFighter, iBono[2].value, iInit[2].value);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CANCELAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);
-  
-  const pTEt = document.createElement("p");
-  pTEt.classList.add("form-seccion");
-  pTEt.innerHTML = `Estados alterados`;  
-
-  const divE = document.createElement("div");
-  divE.classList.add("form-button-group");
-  const bAdS = document.createElement("button");
-  bAdS.classList.add("btn","form-button");
-  bAdS.innerHTML = "AÑADIR";
-  bAdS.addEventListener("click", ()=>{
-    divOpac.remove();
-    formAddState(oFighter);
-  });
-  divE.appendChild(bAdS);  
-
-  const pTEc = document.createElement("p");
-  pTEc.classList.add("form-seccion");
-  pTEc.innerHTML = `Borrado`; 
-
-  const divD = document.createElement("div");
-  divD.classList.add("form-button-group");
-  const bDel = document.createElement("button");
-  bDel.classList.add("btn","form-button");
-  bDel.innerHTML = "ELIMINAR COMBATIENTE";
-  bDel.addEventListener("click", ()=>{
-    divOpac.remove();
-    deleteFighter(oFighter, iBono[2].value, iInit[2].value);
-  });
-  divD.appendChild(bDel);
-
-  divForm.appendChild(pTit);
-  divForm.appendChild(pTIt);
-  divForm.appendChild(iBono[0]);
-  divForm.appendChild(iInit[0]);
-  divForm.appendChild(divB);
-  divForm.appendChild(pTEt);
+  //MONTAJE
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTIt);
+  divOpac[1].appendChild(iBono[0]);
+  divOpac[1].appendChild(iInit[0]);
+  divOpac[1].appendChild(divB[0]);
+  divOpac[1].appendChild(pTEt);
   oFighter.states.forEach(stateIn => {
-    divForm.appendChild(stateIn.showStateInEdit(divOpac));
+    divOpac[1].appendChild(stateIn.showStateInEdit(divOpac[0]));
   })
-  divForm.appendChild(divE);
-  divForm.appendChild(pTEc);
-  divForm.appendChild(divD);
-
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  divOpac[1].appendChild(divE[0]);
+  divOpac[1].appendChild(pTEc);
+  divOpac[1].appendChild(divD[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 function formDealFighter(oFighter){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
-
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-titulo");
-  pTit.innerHTML = `Dañar a ${oFighter.sFullName()}`;
-
+  const divOpac = formPrep();
+  // VISUAL
+  const pTit = formTitle(`Dañar a ${oFighter.sFullName()}`)
   const iDano = formTextInput("Daño causado","id-dano",true);
 
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "ACEPTAR";
-  bAdd.addEventListener("click", ()=>{
-    divOpac.remove();
-    dealFighter(oFighter, iDano[2].value);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CANCELAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);
-  
-  divForm.appendChild(pTit);
-  divForm.appendChild(iDano[0]);
-  divForm.appendChild(divB);
-
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
+    ()=>{ dealFighter(oFighter, iDano[2].value); },
+    ()=>{ divOpac[0].remove(); }
+  ]);  
+  //MONTAJE
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(iDano[0]);
+  divOpac[1].appendChild(divB[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 function formHealFighter(oFighter){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
-
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-titulo");
-  pTit.innerHTML = `Sanar a ${oFighter.sFullName()}`;
-
-  const iDano = formTextInput("Daño sanado","id-sano",true);
-
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "ACEPTAR";
-  bAdd.addEventListener("click", ()=>{
-    divOpac.remove();
-    healFighter(oFighter, iDano[2].value);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CANCELAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);
+  const divOpac = formPrep();
+  // VISUAL
+  const pTit = formTitle(`Sanar a ${oFighter.sFullName()}`)
+  const iDano = formTextInput("Daño sanado","id-dano",true);
   
-  divForm.appendChild(pTit);
-  divForm.appendChild(iDano[0]);
-  divForm.appendChild(divB);
-
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
+    ()=>{ healFighter(oFighter, iDano[2].value); },
+    ()=>{ divOpac[0].remove(); }
+  ]);  
+  //MONTAJE
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(iDano[0]);
+  divOpac[1].appendChild(divB[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 function formAddState(oFighter){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
+  const divOpac = formPrep();
+  
+  const pTit = formSeccion(`Añadir estado alterado a ${oFighter.sFullName()}`);
+  const iName = formTextInput("Nombre","id-state-name",false);
+  const iDesc = formMemoInput("Descripción","id-state-desc");
+  const iChbx = formCheckBox("Incapacitante","id-state-donothing");
+  const iNTrn = formTextInput("Turnos","id-state-truns",true);
+  const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
+    ()=>{
+      divOpac[0].remove();
+      const newState = new state(0, iName[2].value, 
+                                    iDesc[2].value, 
+                                    iChbx[1].checked, 
+                                    iNTrn[2].value, 
+                                    oFighter.sFullName());
+      oFighter.states.push(newState);
+      formEditFighter(oFighter);
+    },
+    ()=>{ divOpac[0].remove(); formEditFighter(oFighter); }
+  ])
 
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-seccion");
-  pTit.innerHTML = `Añadir estado alterado a ${oFighter.sFullName()}`;
-
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "ACEPTAR";
-  bAdd.addEventListener("click", ()=>{
-    divOpac.remove();
-    /**
-     * Añadir estado al combatiente
-     * y mostrar de nuevo el formulario de edición del combatiente
-     */
-    // addStateFighter(oFighter); 
-    formEditFighter(oFighter);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CANCELAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-    formEditFighter(oFighter);
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);  
-
-  divForm.appendChild(pTit);
-  divForm.appendChild(divB);
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(iName[0]);
+  divOpac[1].appendChild(iDesc[0]);
+  divOpac[1].appendChild(iNTrn[0]);
+  divOpac[1].appendChild(iChbx[0]);
+  divOpac[1].appendChild(divB[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 function formEditState(oFighter, oState){
-  const divOpac = document.createElement("div");
-  divOpac.classList.add("form-exterior");
-  const divForm = document.createElement("div");
-  divForm.classList.add("form-dialogo");
+  const divOpac = formPrep();
+  
+  const pTit = formSeccion(`Añadir estado alterado a ${oFighter.sFullName()}`);
+  const iName = formTextInput("Nombre","id-state-name",false);
+  const iDesc = formMemoInput("Descripción","id-state-desc");
+  const iChbx = formCheckBox("Incapacitante","id-state-donothing");
+  const iNTrn = formTextInput("Turnos","id-state-truns",true);
+  const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
+    ()=>{
+      divOpac[0].remove();
+      oState.sName   = iName[2].value;
+      oState.sDesc   = iDesc[2].value;
+      oState.bInca   = iChbx[1].checked;
+      oState.iTurnos = parseInt(iNTrn[2].value);
+      formEditFighter(oFighter);
+    },
+    ()=>{ divOpac[0].remove(); formEditFighter(oFighter); }
+  ])
 
-  const pTit = document.createElement("p");
-  pTit.classList.add("form-seccion");
-  pTit.innerHTML = `Editar estado alterado a ${oFighter.sFullName()}`;
+  iName[2].value = oState.sName;
+  iDesc[2].value = oState.sDesc;
+  iChbx[1].checked = oState.bInca;
+  iNTrn[2].value = oState.iTurnos.toString();
 
-  const divB = document.createElement("div");
-  divB.classList.add("form-button-group");
-  const bAdd = document.createElement("button");
-  bAdd.classList.add("btn","form-button");
-  bAdd.innerHTML = "ACEPTAR";
-  bAdd.addEventListener("click", ()=>{
-    divOpac.remove();
-    /**
-     * Añadir estado al combatiente
-     * y mostrar de nuevo el formulario de edición del combatiente
-     */
-    // editStateFighter(oFighter); 
-    formEditFighter(oFighter);
-  });
-  const bCls = document.createElement("button");
-  bCls.classList.add("btn","form-button");
-  bCls.innerHTML = "CANCELAR";
-  bCls.addEventListener("click", ()=>{
-    divOpac.remove();
-    formEditFighter(oFighter);
-  });
-  divB.appendChild(bAdd);
-  divB.appendChild(bCls);  
-
-  divForm.appendChild(pTit);
-  divForm.appendChild(divB);
-  divOpac.appendChild(divForm);
-  HTMLMain.appendChild(divOpac);
+  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(iName[0]);
+  divOpac[1].appendChild(iDesc[0]);
+  divOpac[1].appendChild(iNTrn[0]);
+  divOpac[1].appendChild(iChbx[0]);
+  divOpac[1].appendChild(divB[0]);
+  HTMLMain.appendChild(divOpac[0]);
 };
 
 // --- MAIN ENTRY ---------------------------------------------------
 
 window.addEventListener("load", ()=>{
   HTMLMain = document.querySelector("main");
-
+  
   loadLocal();
-  TurnControl.htmlNumTurno = document.querySelector("#num-turno");
+  
+  htmlNumTurno = document.querySelector("#num-turno");
   window.addEventListener("resize", checkwindowWidthChange);
-
+  
   const btnAddFighter = document.getElementById("btn-add-fighter");
   btnAddFighter.addEventListener("click", formNewFighter);
-
-  TurnControl.htmlBtnTurno = document.getElementById("btn-next-turn");
-  TurnControl.htmlBtnTurno.addEventListener("click", nextFighter);
-
+  
+  htmlBtnTurno = document.getElementById("btn-next-turn");
+  htmlBtnTurno.addEventListener("click", nextFighter);
+  if (TurnControl.mode===1) htmlBtnTurno.innerHTML = "CONTINUAR"
+  
   const btnClearCombat = document.getElementById("btn-clear-combat");
   btnClearCombat.addEventListener("click", clearCombat);
-
+  
+  htmlStatsData = document.getElementById("stats-data");
+  console.log(htmlStatsData);
+  
   updateTurn();
 })

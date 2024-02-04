@@ -256,8 +256,9 @@ img {
 /* -------------------------------------------------------- */
 /* PANEL INITIATIVE + STATS */
 .panel-initiative-stats {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   gap: 1rem;
   padding: .5rem 1.5rem;  
 }
@@ -281,6 +282,7 @@ img {
 }
 
 .panel-initiative {
+  width: 60%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -322,7 +324,17 @@ img {
 }
 .init-name {
  font-size: 1.8rem;
+ margin-right: .4rem;
  cursor: pointer;
+}
+.init-state {
+  width: 2rem;
+  margin: 0 0 0 .3rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top;
+  cursor: pointer;
+  content: '';
 }
 
 
@@ -335,8 +347,11 @@ img {
 /* -------------------------------------------------------- */
 /* PANEL STATS */
 .panel-stats {
+  width: 40%;
+  height: max-content;
   display: flex;
   flex-direction: column;
+  justify-content: stretch;
 }
 .stats-title {
   margin: 0;
@@ -345,8 +360,8 @@ img {
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  height: 5rem;
   border-top: .2rem solid var(--colorPri);
+
 }
 .state-init-frame {
   border: .2rem solid var(--colorPri);
@@ -354,7 +369,7 @@ img {
   display: grid;
   grid-template-columns: 6fr 2fr;
   grid-template-rows: 1fr auto;
-  width: 90%;
+  width: 100%;
   margin-bottom: .5rem;
 }
 
@@ -495,6 +510,11 @@ img {
   overflow: hidden;
   width: 16rem;
 }
+@media (max-width: 750px) {
+  .form-textinput-memo{
+    width: 13rem;
+  }
+}
 .form-button-group {
   width: 30rem;
   display: flex;
@@ -530,6 +550,11 @@ img {
   /* border-bottom: .2rem solid var(--colorPri);  */
   cursor: pointer;
   user-select: none;
+}
+@media (max-width: 750px) {
+  .form-label-checkbox {
+    width: 14.5rem;
+  }
 }
 /* -------------------------------------------------------- */
 /* STATE IN FORM */

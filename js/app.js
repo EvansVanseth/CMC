@@ -132,6 +132,128 @@ function toggleFightersPanel(){
   showFighters();
 };
 /******** clase ESTADO Alterado **********/
+const standardStates = [
+  {
+    icon: 0,
+    name: '',
+    desc: '',
+    inca: false
+  },
+  {
+    icon: 1,
+    name: 'Apresado',
+    desc: 'Pierde el bonificador de destreza a la CA. Tiene un límite de acciones que puede emprender.',
+    inca: false
+  },
+  {
+    icon: 2,
+    name: 'Asustado',
+    desc: '-2 a las tiradas de ataque, TS, habilidades y características. Huye del origen de su miedo, puede usar magia o aptitudes especiales para huir. Si es acorralado, queda {Aterrado}.',
+    inca: false
+  },
+  {
+    icon: 3,
+    name: 'Aterrado',
+    desc: '-2 a CA y pierde todo el bono de destreza. Se queda helado de miedo y no puede realizar ninguna acción.',
+    inca: true
+  },
+  {
+    icon: 4,
+    name: 'Atontado',
+    desc: 'No puede realizar ninguna acción. No sufre penalización a la CA.',
+    inca: true
+  },
+  {
+    icon: 5,
+    name: 'Aturdido',
+    desc: '-2 a CA y pierde todo el bono de destreza. Deja caer objetos y no puede realizar acciones.',
+    inca: true
+  },
+  {
+    icon: 6,
+    name: 'Consunción de característica temporal',
+    desc: 'El jugador pierde X puntos de X característica',
+    inca: false
+  },
+  {
+    icon: 7,
+    name: 'Cegado',
+    desc: '-2 a CA y pierde todo el bono de destreza. La velocidad se reduce a la mitad. Recibe -4 a Buscar y pruebas basadas en fuerza y destreza. Acciones que dependan de la vista, fallan. Todos los enemigos tienen ocultación 50%.',
+    inca: false
+  },
+  {
+    icon: 8,
+    name: 'Confuso',
+    desc: 'No sufre penalizador pero no puede realizar ataques de oportunidad.<br>Tabla de tiradas:<br>  1-10: Ataca al lanzador CC<br> 11-20: Actua normal<br> 21-50: Balbucea incoherencias<br> 51-70: Huye del lanzador<br>71-100: Ataca a la criatura más cercana',
+    inca: false
+  },
+  {
+    icon: 9,
+    name: 'Deslumbrado',
+    desc: '-1 a la tiradas de ataque, Avistar y Buscar',
+    inca: false
+  },
+  {
+    icon: 10,
+    name: 'Despavorido',
+    desc: '-2 a las tiradas de ataque, TS, habilidad y característica. Deja caer objetos y huye del origen de su miedo y cualquier amenaza. Puede usar magia o aptitudes especiales para huir. Si es acorralado, queda {Aterrado}.',
+    inca: false
+  },
+  {
+    icon: 11,
+    name: 'Consunción de nivel',
+    desc: 'La criatura pierde X niveles.',
+    inca: false
+  },
+  {
+    icon: 12,
+    name: 'Estremecido',
+    desc: '-2 a las tiradas de ataque, TS, habilidad y característica.',
+    inca: false
+  },
+  {
+    icon: 13,
+    name: 'Fatigado',
+    desc: '-2 a Fuerza y Destreza. No puede correr ni cargar.',
+    inca: false
+  },
+  {
+    icon: 14,
+    name: 'Incorporal',
+    desc: 'Inmune a cualquier ataque no mágico.',
+    inca: false
+  },
+  {
+    icon: 15,
+    name: 'Invisible',
+    desc: '+2 a las tiradas e ataque y ignora el bonificador de Destreza a la CA de los enemigos.',
+    inca: false
+  },
+  {
+    icon: 16,
+    name: 'Mareado',
+    desc: 'Incapaz de atacar, lanzar conjuros y concentrarse. Solo puede hacer una acción de movimiento.',
+    inca: false
+  },
+  {
+    icon: 17,
+    name: 'Paralizado',
+    desc: 'Puntuación de Fuerza y Destreza a 0. Es incapaz de moverse o actuar. Está indefenso.',
+    inca: true
+  },
+  {
+    icon: 18,
+    name: 'Petrificado',
+    desc: 'Se considera inconsciente. Se ha convertido en piedra.',
+    inca: true
+  },
+  {
+    icon: 19,
+    name: 'Tumbado',
+    desc: '-4 a las tiradas de ataque y no puede usar armas a distancia. +4 a CA contra ataques a distancia. -4 a CA contra ataques CC.',
+    inca: false
+  },
+]
 class state {
   constructor( iIcon,
                sName,
@@ -152,7 +274,7 @@ class state {
 
     const pName = document.createElement("p");
     pName.classList.add("state-name");
-    pName.innerHTML = `${this.sName} ${(this.bInca?'[X] ':' ')}`;
+    pName.innerHTML = `${this.sName} ${(this.bInca?' [X] ':' ')}`;
     const pTurn = document.createElement("p");
     pTurn.classList.add("state-turn");
     pTurn.innerHTML = `${this.iTurnos}`;
@@ -161,7 +283,7 @@ class state {
     divE.addEventListener("click", ()=>{
       divOpac.remove();
       const oFighter = getFighterByName(this.fighterName);
-      formEditState(oFighter, this);
+      formEditState(oFighter, this, this.iIcon);
     })
     const divD = document.createElement("div");
     divD.classList.add("state-delete");
@@ -205,6 +327,13 @@ class state {
 
     return divS;
   };
+  divIcon(){
+    let divS = document.createElement("div");
+    divS.classList.add(`init-state`);
+    divS.style.backgroundImage = `url(../img/icons/state-${this.iIcon}.svg)`
+    divS.innerHTML = "&nbsp;";
+    return divS;
+  }
 };
 /******** clase FIGHTER **********/
 class fighter {
@@ -334,10 +463,7 @@ class fighter {
     divF.appendChild(divI);
     divF.appendChild(divN);
     this.states.forEach(s => {
-      let divS = document.createElement("div");
-      divS.classList.add(`init-state`);
-      divS.innerHTML = s.sName;
-      divF.appendChild(divS);
+      divF.appendChild(s.divIcon());
     })
     parent.appendChild(divF);
   }
@@ -503,9 +629,8 @@ function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto, sPG)
 function editFighter(oFighter, sBonoInic, sIniciativa){
   oFighter.setBono(sBonoInic);
   oFighter.setInit(sIniciativa);
-  InitiativeList.sort(oFighter.sortByInit);
-  if(TurnControl.fighterName === oFighter.sFullName()) nextFighter();
-  else showInitiative();
+  InitiativeList.sort(fighter.sortByInit);
+  showInitiative();
   showFighters();
   showLife();
   saveLocal();
@@ -562,8 +687,6 @@ function showInitiative(){
     } 
   }
   else heightInitPanel = InitiativeList.length * hF;
-  heightInitPanel = Math.max(heightInitPanel,
-                             )
   HTMLInitiativeList.style.height = `${heightInitPanel}px`;
   
   InitiativeList.forEach(oFighter => { oFighter.showInInitiative(HTMLInitiativeList) });
@@ -720,7 +843,7 @@ function formEditFighter(oFighter){
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
   const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
-    ()=>{ divOpac[0].remove(); editFighter(oFighter, iBono[2].value, iInit[2].value); },
+    ()=>{ divOpac[0].remove(); editFighter(oFighter, iBono[2].value, iInit[2].value); showInitiative();},
     ()=>{ divOpac[0].remove(); showInitiative(); }
   ]);
   const pTEt = formSeccion(`Estados alterados`);
@@ -783,10 +906,13 @@ function formHealFighter(oFighter){
   divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
 };
-function formAddState(oFighter){
+function formAddState(oFighter, type){
   const divOpac = formPrep();
-  
+  if(type===undefined) type = 0;
   const pTit = formSeccion(`Añadir estado alterado a ${oFighter.sFullName()}`);
+  const divT = formButtons(1,["SELECCIONAR ESTANDAR"], [()=>{
+    divOpac[0].remove(); formSelectStateType(oFighter, null, true);
+  }])
   const iName = formTextInput("Nombre","id-state-name",false);
   const iDesc = formMemoInput("Descripción","id-state-desc");
   const iChbx = formCheckBox("Incapacitante","id-state-donothing");
@@ -794,29 +920,44 @@ function formAddState(oFighter){
   const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
     ()=>{
       divOpac[0].remove();
-      const newState = new state(0, iName[2].value, 
-                                    iDesc[2].value, 
-                                    iChbx[1].checked, 
-                                    iNTrn[2].value, 
-                                    oFighter.sFullName());
+      const newState = new state( type, 
+                                  iName[2].value, 
+                                  iDesc[2].value, 
+                                  iChbx[1].checked, 
+                                  iNTrn[2].value, 
+                                  oFighter.sFullName());
       oFighter.states.push(newState);
       formEditFighter(oFighter);
     },
     ()=>{ divOpac[0].remove(); formEditFighter(oFighter); }
   ])
 
+  if(type!==0) {
+    iName[2].disabled = true;
+    iDesc[2].disabled = true;
+    iChbx[1].disabled = true;
+    iName[2].value = standardStates[type].name;
+    iDesc[2].value = standardStates[type].desc;
+    iChbx[1].checked = standardStates[type].inca;
+  }
+
   divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(divT[0]);
   divOpac[1].appendChild(iName[0]);
   divOpac[1].appendChild(iDesc[0]);
   divOpac[1].appendChild(iNTrn[0]);
   divOpac[1].appendChild(iChbx[0]);
   divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
+  autogrow(iDesc[2]);
 };
-function formEditState(oFighter, oState){
+function formEditState(oFighter, oState, type){
   const divOpac = formPrep();
   
-  const pTit = formSeccion(`Añadir estado alterado a ${oFighter.sFullName()}`);
+  const pTit = formSeccion(`Editar estado alterado a ${oFighter.sFullName()}`);
+  const divT = formButtons(1,["SELECCIONAR ESTANDAR"], [()=>{
+    divOpac[0].remove(); formSelectStateType(oFighter, oState, false);
+  }])
   const iName = formTextInput("Nombre","id-state-name",false);
   const iDesc = formMemoInput("Descripción","id-state-desc");
   const iChbx = formCheckBox("Incapacitante","id-state-donothing");
@@ -824,6 +965,7 @@ function formEditState(oFighter, oState){
   const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
     ()=>{
       divOpac[0].remove();
+      oState.iIcon   = type;
       oState.sName   = iName[2].value;
       oState.sDesc   = iDesc[2].value;
       oState.bInca   = iChbx[1].checked;
@@ -838,14 +980,44 @@ function formEditState(oFighter, oState){
   iChbx[1].checked = oState.bInca;
   iNTrn[2].value = oState.iTurnos.toString();
 
+  if(type!==0) {
+    iName[2].disabled = true;
+    iDesc[2].disabled = true;
+    iChbx[1].disabled = true;
+    iName[2].value = standardStates[type].name;
+    iDesc[2].value = standardStates[type].desc;
+    iChbx[1].checked = standardStates[type].inca;
+  }  
+
   divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(divT[0]);
   divOpac[1].appendChild(iName[0]);
   divOpac[1].appendChild(iDesc[0]);
   divOpac[1].appendChild(iNTrn[0]);
   divOpac[1].appendChild(iChbx[0]);
   divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
+  autogrow(iDesc[2]);
 };
+function formSelectStateType(oFighter, oState, bNew){
+  const divOpac = formPrep();
+  
+  const pTit = formSeccion(`Seleccionar estado alterado estandar`);
+
+  divOpac[1].appendChild(pTit);
+  for(let i=0;i<standardStates.length;i++){
+    let divB = formButtons(1,
+      [i===0?'- Personalizado -':standardStates[i].name],
+      [()=>{
+        divOpac[0].remove();
+        if (bNew) formAddState(oFighter, i);
+        else formEditState(oFighter, oState, i);
+    }])
+    divOpac[1].appendChild(divB[0]);
+  }
+
+  HTMLMain.appendChild(divOpac[0]);
+}
 
 // --- MAIN ENTRY ---------------------------------------------------
 

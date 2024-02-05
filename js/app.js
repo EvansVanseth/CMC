@@ -15,6 +15,7 @@ let TurnControl = {
 let htmlNumTurno = null;
 let htmlBtnTurno = null;
 let htmlStatsData = null;
+let htmlLogoDado = null;
 function newCombat(){
   if(InitiativeList.length === 0) return;
   if (!confirm(`Esta acción eliminará todos los combatientes y reiniciará el combate entero.
@@ -109,37 +110,47 @@ function updateTurn(){
   }
   showInitiative();
 };
-function nextFighter(){
-  let fighterFind = "";
-  if(FightersList.length<1) return;
-  if(TurnControl.fighterName !== "") {
-    getFighterByName(TurnControl.fighterName).statesPassTurn();
-  }
-  if(TurnControl.mode===0) {
-    if(!confirm(`¿Todo listo? ¿Empezamos?`)) return;
-    TurnControl.mode = 1;
-    htmlBtnTurno.innerHTML = "SIGUIENTE";
-    TurnControl.fighterPos = InitiativeList[0].iControlInit;
-    TurnControl.fighterName = InitiativeList[0].sFullName();
-    if (InitiativeList[0].checkStates()) nextFighter();
-  } else {
-    htmlBtnTurno.innerHTML = "SIGUIENTE";
-    do {
-      if(TurnControl.fighterPos<80000000 || 
-        TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
-        TurnControl.fighterPos = InitiativeList[0].iControlInit + 1;
-        TurnControl.fighterName = "";
-        TurnControl.turno++;
-      } else {
-        TurnControl.fighterPos--;
-        fighterFind = getFighterByInit(TurnControl.fighterPos);
+function findNextFighter(){
+  const promise = new Promise(resolve => {
+    let fighterFind = "";
+    if(FightersList.length<1) resolve();
+    if(TurnControl.fighterName !== "") {
+      getFighterByName(TurnControl.fighterName).statesPassTurn();
+    }
+    if(TurnControl.mode===0) {
+      if(!confirm(`¿Todo listo? ¿Empezamos?`)) resolve();
+      TurnControl.mode = 1;
+      htmlBtnTurno.innerHTML = "SIGUIENTE";
+      TurnControl.fighterPos = InitiativeList[0].iControlInit;
+      TurnControl.fighterName = InitiativeList[0].sFullName();
+      if (InitiativeList[0].checkStates()) nextFighter();
+    } else {
+      htmlBtnTurno.innerHTML = "SIGUIENTE";
+      do {
+        if(TurnControl.fighterPos<80000000 || 
+          TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
+            TurnControl.fighterPos = InitiativeList[0].iControlInit + 1;
+            TurnControl.fighterName = "";
+            TurnControl.turno++;
+          } else {
+            TurnControl.fighterPos--;
+            fighterFind = getFighterByInit(TurnControl.fighterPos);
+          }
+        } while (fighterFind==="");
+        TurnControl.fighterName = fighterFind;
+        if (getFighterByName(fighterFind).checkStates()) nextFighter();
       }
-    } while (fighterFind==="");
-    TurnControl.fighterName = fighterFind;
-    if (getFighterByName(fighterFind).checkStates()) nextFighter();
+      updateTurn();
+      saveLocal();
+      resolve();
+    });
+    return promise;
   }
-  updateTurn();
-  saveLocal();
+function nextFighter(){
+  htmlLogoDado.classList.add("mark-animate-icon");
+  findNextFighter().then(()=>{
+    htmlLogoDado.classList.remove("mark-animate-icon");
+  });
 };
 /** Otras variables globales */
 const AppTestMode = false;
@@ -1091,22 +1102,22 @@ window.addEventListener("load", ()=>{
   
   htmlNumTurno = document.querySelector("#num-turno");
   window.addEventListener("resize", checkwindowWidthChange);
-  
-  const btnAddFighter = document.getElementById("btn-add-fighter");
-  btnAddFighter.addEventListener("click", formNewFighter);
-  
+
   htmlBtnTurno = document.getElementById("btn-next-turn");
   htmlBtnTurno.addEventListener("click", nextFighter);
   if (TurnControl.mode===1) htmlBtnTurno.innerHTML = "CONTINUAR"
+
+  htmlStatsData = document.getElementById("stats-data");
+  htmlLogoDado  = document.getElementById("id-logo-dado");
+
+  const btnAddFighter = document.getElementById("btn-add-fighter");
+  btnAddFighter.addEventListener("click", formNewFighter); 
   
   const btnNewCombat = document.getElementById("btn-new-combat");
   btnNewCombat.addEventListener("click", newCombat);  
 
   const btnClearCombat = document.getElementById("btn-clear-combat");
   btnClearCombat.addEventListener("click", clearCombat);
-  
-  htmlStatsData = document.getElementById("stats-data");
-  console.log(htmlStatsData);
   
   updateTurn();
 })

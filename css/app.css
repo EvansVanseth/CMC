@@ -178,6 +178,13 @@ img {
   width: 3rem;
   margin-left: 1rem;
 }
+.mark-animate-icon {
+  animation: rotation 1s linear infinite;
+}
+@keyframes rotation {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 
 .mark-btn {
   font-weight: bold;
   /* min-width: 4rem; */

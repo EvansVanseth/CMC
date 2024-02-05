@@ -151,7 +151,8 @@ function nextFighter(){
   setTimeout(()=>{ 
     findNextFighter().then(()=>{
       htmlLogoDado.classList.remove("mark-animate-icon");
-    });}, 100);
+    });
+  }, 100);
 };
 /** Otras variables globales */
 const AppTestMode = false;

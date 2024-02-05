@@ -118,15 +118,13 @@ function findNextFighter(){
       if(TurnControl.fighterName !== "") {
         getFighterByName(TurnControl.fighterName).statesPassTurn();
       }
+      htmlBtnTurno.innerHTML = "SIGUIENTE";
       if(TurnControl.mode===0) {
         TurnControl.mode = 1;
-        htmlBtnTurno.innerHTML = "SIGUIENTE";
         TurnControl.fighterPos = InitiativeList[0].iControlInit;
         TurnControl.fighterName = InitiativeList[0].sFullName();
         if (InitiativeList[0].checkStates()) nextFighter();
       } else {
-        console.log("avancem combat");
-        htmlBtnTurno.innerHTML = "SIGUIENTE";
         do {
           if(TurnControl.fighterPos<80000000 || 
             TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {

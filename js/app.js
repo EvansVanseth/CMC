@@ -111,47 +111,53 @@ function updateTurn(){
   showInitiative();
 };
 function findNextFighter(){
-  const promise = new Promise(resolve => {
+  const promise = new Promise((resolve, reject) => {
     let fighterFind = "";
-    if(FightersList.length<1) resolve();
-    if(TurnControl.fighterName !== "") {
-      getFighterByName(TurnControl.fighterName).statesPassTurn();
-    }
-    if(TurnControl.mode===0) {
-      if(!confirm(`¿Todo listo? ¿Empezamos?`)) resolve();
-      TurnControl.mode = 1;
-      htmlBtnTurno.innerHTML = "SIGUIENTE";
-      TurnControl.fighterPos = InitiativeList[0].iControlInit;
-      TurnControl.fighterName = InitiativeList[0].sFullName();
-      if (InitiativeList[0].checkStates()) nextFighter();
-    } else {
-      htmlBtnTurno.innerHTML = "SIGUIENTE";
-      do {
-        if(TurnControl.fighterPos<80000000 || 
-          TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
-            TurnControl.fighterPos = InitiativeList[0].iControlInit + 1;
-            TurnControl.fighterName = "";
-            TurnControl.turno++;
-          } else {
-            TurnControl.fighterPos--;
-            fighterFind = getFighterByInit(TurnControl.fighterPos);
-          }
-        } while (fighterFind==="");
-        TurnControl.fighterName = fighterFind;
-        if (getFighterByName(fighterFind).checkStates()) nextFighter();
+    console.log(FightersList.length);
+    if(FightersList.length>0) {
+      if(TurnControl.fighterName !== "") {
+        getFighterByName(TurnControl.fighterName).statesPassTurn();
+      }
+      if(TurnControl.mode===0) {
+        TurnControl.mode = 1;
+        htmlBtnTurno.innerHTML = "SIGUIENTE";
+        TurnControl.fighterPos = InitiativeList[0].iControlInit;
+        TurnControl.fighterName = InitiativeList[0].sFullName();
+        if (InitiativeList[0].checkStates()) nextFighter();
+      } else {
+        console.log("avancem combat");
+        htmlBtnTurno.innerHTML = "SIGUIENTE";
+        do {
+          if(TurnControl.fighterPos<80000000 || 
+            TurnControl.fighterName === InitiativeList[InitiativeList.length-1].sFullName()) {
+              TurnControl.fighterPos = InitiativeList[0].iControlInit + 1;
+              TurnControl.fighterName = "";
+              TurnControl.turno++;
+            } else {
+              TurnControl.fighterPos--;
+              fighterFind = getFighterByInit(TurnControl.fighterPos);
+            }
+          } while (fighterFind==="");
+          TurnControl.fighterName = fighterFind;
+          if (getFighterByName(fighterFind).checkStates()) nextFighter();
       }
       updateTurn();
       saveLocal();
       resolve();
+    } else reject();
   });
   return promise;
 }
 function nextFighter(){
   htmlLogoDado.classList.add("mark-animate-icon");
   setTimeout(()=>{ 
-    findNextFighter().then(()=>{
+    findNextFighter()
+    .then(()=>{
       htmlLogoDado.classList.remove("mark-animate-icon");
-    });
+    })
+    .catch(()=>{
+      htmlLogoDado.classList.remove("mark-animate-icon");
+    })
   }, 100);
 };
 /** Otras variables globales */
@@ -1105,7 +1111,7 @@ window.addEventListener("load", ()=>{
   window.addEventListener("resize", checkwindowWidthChange);
 
   htmlBtnTurno = document.getElementById("btn-next-turn");
-  htmlBtnTurno.addEventListener("click", nextFighter);
+  htmlBtnTurno.addEventListener("click", ()=>{ nextFighter() });
   if (TurnControl.mode===1) htmlBtnTurno.innerHTML = "CONTINUAR"
 
   htmlStatsData = document.getElementById("stats-data");

@@ -143,14 +143,15 @@ function findNextFighter(){
       updateTurn();
       saveLocal();
       resolve();
-    });
-    return promise;
-  }
+  });
+  return promise;
+}
 function nextFighter(){
   htmlLogoDado.classList.add("mark-animate-icon");
-  findNextFighter().then(()=>{
-    htmlLogoDado.classList.remove("mark-animate-icon");
-  });
+  setTimeout(()=>{ 
+    findNextFighter().then(()=>{
+      htmlLogoDado.classList.remove("mark-animate-icon");
+    });}, 100);
 };
 /** Otras variables globales */
 const AppTestMode = false;
@@ -475,7 +476,6 @@ class fighter {
     divF.classList.add(`init-fighter`);
     if (TurnControl.fighterName === this.sFullName()) {
       divF.classList.add("init-active");
-      console.log(htmlStatsData);
       if(htmlStatsData!==null) {
         this.states.forEach(stateIn => {
           htmlStatsData.appendChild(stateIn.showStateInInit());

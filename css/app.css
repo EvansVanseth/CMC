@@ -190,6 +190,17 @@ img {
   color: var(--colorPri);
   background-color: var(--colorTer);
 }
+.mark-opt-btn {
+  font-weight: bold;
+  /* min-width: 4rem; */
+  margin: 1rem;
+  color: var(--colorSec);
+  background-color: var(--colorPri);
+}
+.mark-opt-btn:hover {
+  color: var(--colorPri);
+  background-color: var(--colorTer);
+}
 /* -------------------------------------------------------- */
 /* COMUN A PANELES */
 .panel-cerrado {
@@ -454,7 +465,6 @@ img {
   position: fixed;
   z-index: 999;
 }
-
 .form-dialogo {
   display: flex;
   flex-direction: column;
@@ -469,13 +479,30 @@ img {
   font-family: var(--fontTitulos);
   font-size: 2.5rem;
   font-weight: 900;
-  margin: 0 auto;
+  margin: 0 auto 0 0;
 }
 .form-seccion {
   font-size: 2rem;
   font-weight: 900;
-  margin: 0 0 0 3rem;
+  margin: 0 auto 0 0;
   width: 100%;
+}
+.form-div-titulo {
+  width: 30rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form-cerrar {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 0 0 .3rem;
+  background-image: url(../img/icons/close.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top;
+  cursor: pointer;
+  content: '';
 }
 .form-line-group {
   width: 30rem;

@@ -15,8 +15,9 @@ let TurnControl = {
 let htmlNumTurno = null;
 let htmlBtnTurno = null;
 let htmlStatsData = null;
-function clearCombat(){
-  if (!confirm(`Esta acción vaciará el combate entero y se reiniciará todo.
+function newCombat(){
+  if(InitiativeList.length === 0) return;
+  if (!confirm(`Esta acción eliminará todos los combatientes y reiniciará el combate entero.
   
   ¿Quieres hacerlo igualmente?`)) return;
   FightersList.splice(0, FightersList.length);
@@ -28,6 +29,25 @@ function clearCombat(){
   TurnControl.turno = 0;
   TurnControl.fighterPos = 999999999;
   TurnControl.fighterName = "";
+  TurnControl.mode = 0;
+  htmlBtnTurno.innerHTML = "INICIAR";
+  showFighters();
+  showLife();
+  updateTurn();
+  saveLocal();
+};
+function clearCombat(){
+  if(TurnControl.mode === 0) return;
+  if (!confirm(`Esta acción reiniciará el combate.
+  
+  ¿Quieres hacerlo igualmente?`)) return;
+  TurnControl.turno = 0;
+  if(InitiativeList.length>0) {
+    TurnControl.fighterName = InitiativeList[0].sFullName();
+    TurnControl.fighterPos = InitiativeList[0].iControlInit;
+  } else 
+  TurnControl.fighterName = "";
+  TurnControl.fighterPos = 999999999;
   TurnControl.mode = 0;
   htmlBtnTurno.innerHTML = "INICIAR";
   showFighters();
@@ -397,7 +417,11 @@ class fighter {
     return 1;
   }
   static sortByName(fA, fB) {
-    if (fA.sFullName() < fB.sFullName()) return -1;
+    if (fA.sName < fB.sName) return -1;
+    if (fA.sName === fB.sName) {
+      if (fA.iNumRep < fB.iNumRep) return -1;
+      else return 1;
+    }
     return 1;
   }
   // elemento HTML para COMBATIENTES 
@@ -714,16 +738,28 @@ function formPrep(){
   return [divOpac, divForm];
 };
 function formTitle(Caption){
+  const divT = document.createElement("div");
+  divT.classList.add("form-div-titulo");
   const pTit = document.createElement("p");
   pTit.classList.add("form-titulo");
   pTit.innerHTML = Caption;  
-  return pTit;
+  const divC = document.createElement("div");
+  divC.classList.add("form-cerrar");
+  divT.appendChild(pTit);
+  divT.appendChild(divC);
+  return [divT, pTit, divC];
 }
 function formSeccion(Caption){
+  const divT = document.createElement("div");
+  divT.classList.add("form-div-titulo");
   const pTit = document.createElement("p");
   pTit.classList.add("form-seccion");
   pTit.innerHTML = Caption;  
-  return pTit;
+  const divC = document.createElement("div");
+  divC.classList.add("form-cerrar");
+  divT.appendChild(pTit);
+  divT.appendChild(divC);
+  return [divT, pTit, divC];
 }
 function formTextInput(Caption, ID, bOnlyNumbers = false){
   const div = document.createElement("div");
@@ -801,21 +837,24 @@ function formNewFighter(){
 
   // VISUAL
   const pTit = formTitle("Nuevo combatiente");
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); });
   const iName = formTextInput("Nombre","id-nombre-combatiente");
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
   const iPtGP = formTextInput("Puntos de golpe (PG)","id-puntos-golpe",true);
   const iChbxJ = formCheckBox("Jugador", "chbxJugador");
   const iChbxT = formCheckBox("Tirada automatica", "chbxTiradaAuto");
-  const divB = formButtons(2, ["AÑADIR", "CERRAR"], [
+  const divB = formButtons(1, ["AÑADIR"], [
     () => { addFighter(iChbxJ[1].checked, 
                        iName[2].value, 
                        iBono[2].value, 
                        iInit[2].value, 
                        iChbxT[1].checked, 
-                       iPtGP[2].value); },
-    () => { divOpac[0].remove(); }
+                       iPtGP[2].value); }
   ]);
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem"; 
   // LOGICA
   iInit[2].disabled = true;
   iChbxT[1].checked = true;
@@ -825,7 +864,7 @@ function formNewFighter(){
   iChbxT[2].addEventListener("click", ()=>{ changeCheckBox(iChbxT[1], undefined, [], [iInit[2]])} );
   
   // MONTAJE
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   divOpac[1].appendChild(iChbxJ[0]);
   divOpac[1].appendChild(iName[0]);
   divOpac[1].appendChild(iBono[0]);
@@ -839,53 +878,66 @@ function formEditFighter(oFighter){
   const divOpac = formPrep();
   // VISUAL
   const pTit = formTitle(oFighter.sFullName());
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); });
   const pTIt = formSeccion(`Iniciativa`);
+  pTIt[2].style.height = "0px";
   const iBono = formTextInput("Bonificador de iniciativa","id-bono-iniciativa",true);
   const iInit = formTextInput("Tirada de iniciativa","id-tira-iniciativa",true);
-  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
-    ()=>{ divOpac[0].remove(); editFighter(oFighter, iBono[2].value, iInit[2].value); showInitiative();},
-    ()=>{ divOpac[0].remove(); showInitiative(); }
-  ]);
   const pTEt = formSeccion(`Estados alterados`);
+  pTEt[2].style.height = "0px";
   const divE = formButtons(1, ["AÑADIR"], [
     ()=>{ divOpac[0].remove(); formAddState(oFighter); showInitiative(); }
   ]);
+  divE[0].style.justifyContent = "left";
   const pTEc = formSeccion(`Borrado`);
+  pTEc[2].style.height = "0px";
   const divD = formButtons(1, ["ELIMINAR COMBATIENTE"], [
     ()=>{ divOpac[0].remove(); deleteFighter(oFighter, iBono[2].value, iInit[2].value); }
   ]);
+  divD[0].style.justifyContent = "left";
+  const divB = formButtons(1, ["ACEPTAR"], [
+    ()=>{ divOpac[0].remove(); editFighter(oFighter, iBono[2].value, iInit[2].value); showInitiative();}
+  ]);
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem";
 
+  
   // LOGICA
   iBono[2].value = `${oFighter.iInit_bon}`;
   iInit[2].value = `${oFighter.iInit_value}`;
 
   //MONTAJE
-  divOpac[1].appendChild(pTit);
-  divOpac[1].appendChild(pTIt);
+  divOpac[1].appendChild(pTit[0]);
+  divOpac[1].appendChild(pTIt[0]);
   divOpac[1].appendChild(iBono[0]);
   divOpac[1].appendChild(iInit[0]);
-  divOpac[1].appendChild(divB[0]);
-  divOpac[1].appendChild(pTEt);
+  divOpac[1].appendChild(pTEt[0]);
   oFighter.states.forEach(stateIn => {
     divOpac[1].appendChild(stateIn.showStateInEdit(divOpac[0]));
   })
   divOpac[1].appendChild(divE[0]);
-  divOpac[1].appendChild(pTEc);
+  divOpac[1].appendChild(pTEc[0]);
   divOpac[1].appendChild(divD[0]);
+  divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
 };
 function formDealFighter(oFighter){
   const divOpac = formPrep();
   // VISUAL
-  const pTit = formTitle(`Dañar a ${oFighter.sFullName()}`)
-  const iDano = formTextInput("Daño causado","id-dano",true);
+  const pTit = formTitle(`Dañar a ${oFighter.sFullName()}`);
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); });
+  const iDano = formTextInput("Daño causado ( - )","id-dano",true);
 
-  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
-    ()=>{ dealFighter(oFighter, iDano[2].value); },
-    ()=>{ divOpac[0].remove(); }
+  const divB = formButtons(1, ["ACEPTAR"], [
+    ()=>{ divOpac[0].remove(); dealFighter(oFighter, iDano[2].value); }
   ]);  
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem";
+
   //MONTAJE
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   divOpac[1].appendChild(iDano[0]);
   divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
@@ -893,15 +945,19 @@ function formDealFighter(oFighter){
 function formHealFighter(oFighter){
   const divOpac = formPrep();
   // VISUAL
-  const pTit = formTitle(`Sanar a ${oFighter.sFullName()}`)
-  const iDano = formTextInput("Daño sanado","id-dano",true);
+  const pTit = formTitle(`Sanar a ${oFighter.sFullName()}`);
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); });
+  const iDano = formTextInput("Daño sanado ( + )","id-dano",true);
   
-  const divB = formButtons(2, ["ACEPTAR","CERRAR"], [
-    ()=>{ healFighter(oFighter, iDano[2].value); },
-    ()=>{ divOpac[0].remove(); }
+  const divB = formButtons(1, ["ACEPTAR"], [
+    ()=>{ divOpac[0].remove(); healFighter(oFighter, iDano[2].value); }
   ]);  
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem";
+ 
   //MONTAJE
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   divOpac[1].appendChild(iDano[0]);
   divOpac[1].appendChild(divB[0]);
   HTMLMain.appendChild(divOpac[0]);
@@ -910,6 +966,7 @@ function formAddState(oFighter, type){
   const divOpac = formPrep();
   if(type===undefined) type = 0;
   const pTit = formSeccion(`Añadir estado alterado a ${oFighter.sFullName()}`);
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); formEditFighter(oFighter); });
   const divT = formButtons(1,["SELECCIONAR ESTANDAR"], [()=>{
     divOpac[0].remove(); formSelectStateType(oFighter, null, true);
   }])
@@ -917,7 +974,7 @@ function formAddState(oFighter, type){
   const iDesc = formMemoInput("Descripción","id-state-desc");
   const iChbx = formCheckBox("Incapacitante","id-state-donothing");
   const iNTrn = formTextInput("Turnos","id-state-truns",true);
-  const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
+  const divB = formButtons(1, ["ACEPTAR"], [
     ()=>{
       divOpac[0].remove();
       const newState = new state( type, 
@@ -928,9 +985,11 @@ function formAddState(oFighter, type){
                                   oFighter.sFullName());
       oFighter.states.push(newState);
       formEditFighter(oFighter);
-    },
-    ()=>{ divOpac[0].remove(); formEditFighter(oFighter); }
+    }
   ])
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem";
 
   if(type!==0) {
     iName[2].disabled = true;
@@ -941,7 +1000,7 @@ function formAddState(oFighter, type){
     iChbx[1].checked = standardStates[type].inca;
   }
 
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   divOpac[1].appendChild(divT[0]);
   divOpac[1].appendChild(iName[0]);
   divOpac[1].appendChild(iDesc[0]);
@@ -955,6 +1014,7 @@ function formEditState(oFighter, oState, type){
   const divOpac = formPrep();
   
   const pTit = formSeccion(`Editar estado alterado a ${oFighter.sFullName()}`);
+  pTit[2].addEventListener("click", ()=>{ divOpac[0].remove(); formEditFighter(oFighter);});
   const divT = formButtons(1,["SELECCIONAR ESTANDAR"], [()=>{
     divOpac[0].remove(); formSelectStateType(oFighter, oState, false);
   }])
@@ -962,7 +1022,7 @@ function formEditState(oFighter, oState, type){
   const iDesc = formMemoInput("Descripción","id-state-desc");
   const iChbx = formCheckBox("Incapacitante","id-state-donothing");
   const iNTrn = formTextInput("Turnos","id-state-truns",true);
-  const divB = formButtons(2, ["ACEPTAR","CANCELAR"], [
+  const divB = formButtons(1, ["ACEPTAR","CANCELAR"], [
     ()=>{
       divOpac[0].remove();
       oState.iIcon   = type;
@@ -971,9 +1031,11 @@ function formEditState(oFighter, oState, type){
       oState.bInca   = iChbx[1].checked;
       oState.iTurnos = parseInt(iNTrn[2].value);
       formEditFighter(oFighter);
-    },
-    ()=>{ divOpac[0].remove(); formEditFighter(oFighter); }
+    }
   ])
+  divB[0].style.borderTop = ".2rem solid var(--colorPri)";
+  divB[0].style.paddingTop = ".3rem";
+  divB[0].style.marginTop = ".5rem";
 
   iName[2].value = oState.sName;
   iDesc[2].value = oState.sDesc;
@@ -989,7 +1051,7 @@ function formEditState(oFighter, oState, type){
     iChbx[1].checked = standardStates[type].inca;
   }  
 
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   divOpac[1].appendChild(divT[0]);
   divOpac[1].appendChild(iName[0]);
   divOpac[1].appendChild(iDesc[0]);
@@ -1003,8 +1065,9 @@ function formSelectStateType(oFighter, oState, bNew){
   const divOpac = formPrep();
   
   const pTit = formSeccion(`Seleccionar estado alterado estandar`);
+  pTit[2].style.height = "0px";
 
-  divOpac[1].appendChild(pTit);
+  divOpac[1].appendChild(pTit[0]);
   for(let i=0;i<standardStates.length;i++){
     let divB = formButtons(1,
       [i===0?'- Personalizado -':standardStates[i].name],
@@ -1036,6 +1099,9 @@ window.addEventListener("load", ()=>{
   htmlBtnTurno.addEventListener("click", nextFighter);
   if (TurnControl.mode===1) htmlBtnTurno.innerHTML = "CONTINUAR"
   
+  const btnNewCombat = document.getElementById("btn-new-combat");
+  btnNewCombat.addEventListener("click", newCombat);  
+
   const btnClearCombat = document.getElementById("btn-clear-combat");
   btnClearCombat.addEventListener("click", clearCombat);
   

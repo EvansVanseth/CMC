@@ -648,6 +648,7 @@ function addFighter(bJugador, sNombre, sBonoInic, sIniciativa, bTiradaAuto, sPG)
   if(sNombre === "") return;
   if (sPG === "") sPG = "0";
   let iPG = parseInt(sPG);
+  if(bJugador) iPG = 1;
   if (existsFighterByName(sNombre)) return;
   const newFighter = new fighter(sNombre, 
                                  sBonoInic, 
